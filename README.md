@@ -13,7 +13,8 @@ It is a single static page (`index.html`) with no build step. Open it in a brows
 - **Pattern tools:** half and quarter-map symmetry, a border generator (guard stripes and six motifs), and abrash simulation in the rug preview.
 - **Knot editing:** brush, flood fill, colour picker, undo/redo. The brush follows the chosen symmetry.
 - **Row reader (رج‌خوان):** steps through the map row by row with knot counts per colour, and can read a row aloud.
-- **Guided tutorial (راهنمای گام‌به‌گام):** a 36-step Farsi walkthrough that opens on the first visit and from the header button. It switches tabs by itself and points a bouncing yellow arrow at each control while explaining what it does, from uploading an image to exporting the weaving map.
+- **Saving and continuing later:** every change is saved automatically in the browser (IndexedDB), and reopening the page restores the last session: the image, crop and rotation, size and raj, palette, filters, pattern, export options and manual knot edits. Under «پروژه‌های من» you can keep several named projects with thumbnails, open or delete them, and save a copy as a new version. A project can also be exported to a JSON file and opened on another computer.
+- **Guided tutorial (راهنمای گام‌به‌گام):** a 37-step Farsi walkthrough that opens on the first visit and from the header button. It switches tabs by itself and points a bouncing yellow arrow at each control while explaining what it does, from uploading an image to exporting the weaving map.
 - **Export:**
   - Printable PDF sheets (A4/A3) with 10-knot grid lines, rows numbered from the bottom, a centre axis and symbols for black-and-white printing.
   - A cover page with the colour and wool key and an index of the sheets.
