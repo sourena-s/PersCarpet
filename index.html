@@ -181,7 +181,7 @@ input[type=number]{direction:ltr;text-align:right}
 <body>
 <div class="app" dir="rtl" lang="fa">
   <header class="top">
-    <div class="brand"><h1>نقشه<span>‌کش</span></h1><div class="brand-sub"><small>طراحی نقشهٔ فرش دستباف از روی تصویر</small><small class="credit">طراحی و توسعه: <b>سورنا سهیلی‌نژاد</b></small></div></div>
+    <div class="brand"><h1>نقشه<span>‌کش</span></h1><div class="brand-sub"><small>طراحی نقشهٔ فرش دستباف از روی تصویر</small><small class="credit">طراحی و توسعه: <b>سورنا سهیلی‌نژاد</b>، به سفارش: <b>دکتر سهیلا شعیبی</b></small></div></div>
     <div class="chips" id="chips"></div>
     <span class="chip" id="saveState" title="همهٔ تغییرها خودکار در همین مرورگر ذخیره می‌شوند">ذخیرهٔ خودکار</span>
     <button class="btn" id="tourBtn" style="border-color:#E0B400">راهنمای گام‌به‌گام ✦</button>
@@ -397,18 +397,26 @@ input[type=number]{direction:ltr;text-align:right}
       <!-- EXPORT -->
       <section class="pane" data-pane="export" hidden>
         <div class="group">
-          <h3>نقشهٔ چاپی برای بافنده</h3>
-          <label class="field2"><span>اندازهٔ کاغذ</span><select id="paper"><option value="a4">A4</option><option value="a3" selected>A3</option></select></label>
-          <label class="field2"><span>اندازهٔ هر خانه</span><select id="cellMm"><option value="2">۲ میلی‌متر</option><option value="2.5">۲٫۵ میلی‌متر</option><option value="3" selected>۳ میلی‌متر</option><option value="4">۴ میلی‌متر</option><option value="5">۵ میلی‌متر</option></select></label>
-          <label class="field2"><span>بخش نقشه</span><select id="region"><option value="full">کامل</option><option value="half">نیمهٔ پایین (Half map)</option><option value="quarter">یک‌چهارم پایین-راست (Quarter map)</option></select></label>
-          <label class="check"><input type="checkbox" id="pdfSym" checked> نماد در خانه‌ها (برای چاپ سیاه‌وسفید)</label>
+          <h3>نقشهٔ چاپی برای بافنده (PDF)</h3>
+          <label class="field2"><span>اندازهٔ کاغذ</span><select id="paper"><option value="210x297">A4 (۲۱۰×۲۹۷ میلی‌متر)</option><option value="297x420" selected>A3 (۲۹۷×۴۲۰)</option><option value="420x594">A2 (۴۲۰×۵۹۴)</option><option value="594x841">A1 (۵۹۴×۸۴۱)</option><option value="841x1189">A0 (۸۴۱×۱۱۸۹)</option><option value="216x279">Letter</option><option value="216x356">Legal</option><option value="279x432">Tabloid</option><option value="custom">اندازهٔ دلخواه…</option></select></label>
+          <div class="row" id="paperCustom" hidden><input type="number" id="paperW" min="100" max="3000" step="1" value="500" style="width:90px"> × <input type="number" id="paperH" min="100" max="3000" step="1" value="700" style="width:90px"> میلی‌متر (عرض × ارتفاع)</div>
+          <label class="field2"><span>جهت کاغذ</span><select id="orient"><option value="auto">خودکار (کمترین شمار برگه)</option><option value="p">عمودی</option><option value="l">افقی</option></select></label>
+          <label class="field2"><span>اندازه‌گذاری</span><select id="sizeMode"><option value="cell">بر اساس اندازهٔ هر خانه</option><option value="width">بر اساس عرض کل نقشهٔ چاپی</option></select></label>
+          <label class="field2" id="cellRow"><span>اندازهٔ هر خانه (میلی‌متر)</span><input type="number" id="cellMm" min="1" max="15" step="0.1" value="3"></label>
+          <label class="field2" id="widthRow" hidden><span>عرض کل نقشهٔ چاپی (سانتی‌متر)</span><input type="number" id="printW" min="5" max="3000" step="1" value="100"></label>
+          <label class="field2"><span>گره در هر برگه</span><select id="perSheet"><option value="auto">خودکار (پر کردن کاغذ)</option><option value="custom">دلخواه</option></select></label>
+          <div class="row" id="perSheetCustom" hidden><input type="number" id="sheetCols" min="10" max="2000" step="10" value="60" style="width:80px"> گره در عرض × <input type="number" id="sheetRows" min="10" max="2000" step="10" value="80" style="width:80px"> رج</div>
+          <label class="field2"><span>همپوشانی لبهٔ برگه‌ها</span><select id="overlap"><option value="0">بدون</option><option value="1">۱ گره</option><option value="2" selected>۲ گره</option><option value="5">۵ گره</option></select></label>
+          <label class="field2"><span>بخش نقشه</span><select id="region"><option value="full">کامل</option><option value="half">نیمهٔ پایین (Half map)</option><option value="quarter">یک‌چهارم پایین (Quarter map)</option></select></label>
+          <label class="field2"><span>شیوهٔ چاپ</span><select id="mapStyle"><option value="both">رنگی با نماد</option><option value="color">فقط رنگی</option><option value="sym">سیاه‌وسفید (فقط نماد)</option></select></label>
+          <label class="check"><input type="checkbox" id="pageLegend" checked> راهنمای رنگ در پایین هر برگه</label>
           <label class="check"><input type="checkbox" id="rtl" checked> شماره‌گذاری و بافت از راست به چپ</label>
-          <p class="hint" id="sheetInfo"></p>
+          <p class="note" id="sheetInfo"></p>
           <button class="btn madder" id="expPdf">ساخت PDF برگه‌های نقشه</button>
         </div>
         <div class="group">
           <h3>فایل‌های دیگر</h3>
-          <div class="exp"><div><b>تصویر کامل نقشه (PNG)</b><p>با خطوط ده‌تایی، شماره‌ها و راهنمای رنگ</p></div><div class="row"><select id="pngCell" style="width:auto"><option value="6">۶px</option><option value="10" selected>۱۰px</option><option value="16">۱۶px</option><option value="24">۲۴px</option></select><button class="btn" id="expPng">ذخیره</button></div></div>
+          <div class="exp"><div><b>تصویر نقشه (PNG)</b><p id="pngInfo">با خطوط ده‌تایی، شماره‌ها و راهنمای رنگ؛ بخش نقشه و شیوهٔ چاپ مانند PDF</p></div><div class="row"><input type="number" id="pngCell" min="2" max="60" step="1" value="10" style="width:64px" aria-label="پیکسل برای هر گره"><span class="hint">پیکسل/گره</span><label class="check"><input type="checkbox" id="pngLegend" checked> راهنما</label><button class="btn" id="expPng">ذخیره</button></div></div>
           <div class="exp"><div><b>پیش‌نمایش فرش (PNG)</b><p>برای نشان دادن به سفارش‌دهنده</p></div><button class="btn" id="expRug">ذخیره</button></div>
           <div class="exp"><div><b>تعلیم رج‌به‌رج (TXT)</b><p>شمار گره‌های هر رنگ در هر رج، از پایین به بالا</p></div><button class="btn" id="expTxt">ذخیره</button></div>
           <div class="exp"><div><b>فهرست رنگ و پشم (CSV)</b><p>کد، نام، شمار گره، درصد و وزن تقریبی پشم</p></div><button class="btn" id="expCsv">ذخیره</button></div>
@@ -897,11 +905,12 @@ function css(n){return getComputedStyle(document.documentElement).getPropertyVal
 function symInk(k){return relLum(palette[k].hex)>0.28?'rgba(0,0,0,.78)':'rgba(255,255,255,.88)'}
 function drawMapRegion(ctx,ox,oy,cw,ch,x0,y0,x1,y1,o){
   ctx.imageSmoothingEnabled=cw<1;
-  ctx.drawImage(colorCanvas,x0,y0,x1-x0,y1-y0,ox+x0*cw,oy+y0*ch,(x1-x0)*cw,(y1-y0)*ch);
+  if(o.mono){ctx.fillStyle='#fff';ctx.fillRect(ox+x0*cw,oy+y0*ch,(x1-x0)*cw,(y1-y0)*ch)}
+  else ctx.drawImage(colorCanvas,x0,y0,x1-x0,y1-y0,ox+x0*cw,oy+y0*ch,(x1-x0)*cw,(y1-y0)*ch);
   const ink=o.ink||'#1A2036';
-  if(o.symbols&&cw>=11&&ch>=9){
+  if(o.symbols&&(o.mono?cw>=5:cw>=11&&ch>=9)){
     ctx.font=`${Math.floor(Math.min(cw,ch)*0.66)}px "Segoe UI Symbol","Noto Sans Symbols 2",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-    const inks=palette.map((_,k)=>symInk(k));
+    const inks=palette.map((_,k)=>o.mono?'#000':symInk(k));
     for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const k=grid[y*W+x];ctx.fillStyle=inks[k];ctx.fillText(SYMS[k%SYMS.length],ox+(x+.5)*cw,oy+(y+.5)*ch+0.5)}
   }
   if(o.grid&&cw>=5){
@@ -1087,9 +1096,6 @@ function updateStatus(){
     if(cam.cell<5&&S.view==='map')parts.push('برای دیدن شبکه بزرگ‌نمایی کنید');
   }
   $('#status').innerHTML=parts.map(p=>`<span>${p}</span>`).join('');
-}
-function updateSheetInfo(){
-  const L=sheetLayout();$('#sheetInfo').textContent=L?`${fa(L.pages)} برگه (${fa(L.cols)} × ${fa(L.rows)})، هر برگه ${fa(L.kx)} × ${fa(L.ky)} گره، به‌علاوهٔ برگهٔ راهنمای رنگ`:'';
 }
 function updateAll(){markDirty();renderPalette();renderAnalysis();updateSpecs();updateHeader();updateStatus();updateSheetInfo();if(rowOn)renderRow();redraw()}
 function syncControls(){
@@ -1377,19 +1383,33 @@ function legendDraw(g,x,y,w,cell,ink){
     g.fillStyle=ink;g.textAlign='right';g.font='14px Vazirmatn,Tahoma';g.fillText(`${c.fa}، ${nf(counts[i]||0)} گره، ${nf((counts[i]||0)/grid.length*100,1)}٪`,cx+w/cols-50,cy+(rowH-8)/2);i++}
   return Math.ceil(palette.length/cols)*rowH;
 }
+function styleOpts(){const v=$('#mapStyle').value;return{symbols:v!=='color',mono:v==='sym'}}
+function legendBlock(g,x,y,w,items,u,mono){ // u = px per mm; items: [{i,n}]
+  const iw=52*u,ih=6.4*u,per=Math.max(1,Math.floor(w/iw));g.textBaseline='middle';
+  items.forEach((it,k)=>{const c=palette[it.i],cx=x+w-((k%per)+1)*iw,cy=y+Math.floor(k/per)*ih,sw=9*u,sh=ih-1.4*u;
+    g.fillStyle=mono?'#fff':c.hex;g.fillRect(cx+iw-sw,cy,sw,sh);g.strokeStyle='#000';g.lineWidth=Math.max(1,0.25*u);g.strokeRect(cx+iw-sw,cy,sw,sh);
+    g.fillStyle=mono?'#000':symInk(it.i);g.textAlign='center';g.font=`bold ${3.1*u}px Vazirmatn,Tahoma`;g.fillText(SYMS[it.i%SYMS.length],cx+iw-sw/2,cy+sh/2);
+    g.fillStyle='#111';g.textAlign='right';g.font=`${2.9*u}px Vazirmatn,Tahoma`;
+    g.fillText(`${CODES[it.i]}، ${c.fa}${it.n!=null?'، '+nf(it.n)+' گره':''}`,cx+iw-sw-1.4*u,cy+sh/2)});
+  return Math.ceil(items.length/per)*ih;
+}
+function usedIn(x0,y0,x1,y1){const n=new Array(palette.length).fill(0);for(let y=y0;y<y1;y++){const o=y*W;for(let x=x0;x<x1;x++)n[grid[o+x]]++}return n.map((v,i)=>({i,n:v})).filter(t=>t.n>0)}
 async function exportPng(){
-  if(!grid)return;await document.fonts.ready;let cell=+$('#pngCell').value;const asp=aspect();
-  while(cell>2&&(W*cell>16000||H*cell*asp>16000||W*cell*H*cell*asp>1.2e8))cell--;
-  if(cell!==+$('#pngCell').value)toast('اندازهٔ خانه برای جا شدن در تصویر به '+fa(cell)+' پیکسل کم شد.');
-  const m=60,mw=W*cell,mh=Math.round(H*cell*asp),cols=Math.max(1,Math.floor((mw)/260)),legH=Math.ceil(palette.length/cols)*(Math.max(cell,14)+20)+90;
-  const c=document.createElement('canvas');c.width=mw+2*m;c.height=mh+2*m+legH+50;const g=c.getContext('2d');g.direction='rtl';
-  g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.fillStyle='#1A2036';g.font='bold 22px Vazirmatn,Tahoma';g.textAlign='right';g.textBaseline='top';
-  g.fillText(`نقشهٔ فرش، ${fa(S.widthCm)}×${fa(S.lengthCm)} سانتی‌متر، رج ${fa(S.raj)}، ${fa(W)}×${fa(H)} گره، ${fa(palette.length)} رنگ`,c.width-m,16);
-  drawMapRegion(g,m,m+40,cell,cell*asp,0,0,W,H,{grid:true,symbols:cell>=12,center:true,thin:0.6,bold:Math.max(1.2,cell/8)});
-  g.fillStyle='#1A2036';g.font=`${Math.max(10,Math.min(14,cell))}px Vazirmatn,Tahoma`;g.textAlign='center';g.textBaseline='middle';const rtl=$('#rtl').checked;
-  for(let n=10;n<=W;n+=10){const x=rtl?W-n:n-1;g.fillText(fa(n),m+(x+.5)*cell,m+40-12);g.fillText(fa(n),m+(x+.5)*cell,m+40+mh+12)}
-  for(let n=10;n<=H;n+=10){const y=m+40+(H-n+.5)*cell*asp;g.textAlign='left';g.fillText(fa(n),m+mw+6,y);g.textAlign='right';g.fillText(fa(n),m-6,y)}
-  legendDraw(g,m,m+40+mh+40,mw,Math.max(cell,14),'#1A2036');
+  if(!grid)return;await document.fonts.ready;const asp=aspect(),R=regionRect(),rw=R.x1-R.x0,rh=R.y1-R.y0,st=styleOpts();
+  const want=Math.max(2,Math.min(60,+$('#pngCell').value||10));let cell=want;
+  while(cell>2&&(rw*cell>16000||rh*cell*asp>16000||rw*cell*rh*cell*asp>1.4e8))cell--;
+  if(cell!==want)toast('اندازهٔ خانه برای جا شدن در تصویر به '+fa(cell)+' پیکسل کم شد.');
+  const u=Math.max(3,cell/2.2),m=Math.round(12*u),mw=rw*cell,mh=Math.round(rh*cell*asp),items=$('#pngLegend').checked?usedIn(R.x0,R.y0,R.x1,R.y1):[];
+  const per=Math.max(1,Math.floor(mw/(52*u))),legH=items.length?Math.ceil(items.length/per)*6.4*u+10*u:0,head=Math.round(10*u);
+  const c=document.createElement('canvas');c.width=mw+2*m;c.height=mh+2*m+head+legH;const g=c.getContext('2d');g.direction='rtl';
+  g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.fillStyle='#1A2036';g.font=`bold ${4*u}px Vazirmatn,Tahoma`;g.textAlign='right';g.textBaseline='top';
+  g.fillText(`نقشهٔ فرش، ${fa(S.widthCm)}×${fa(S.lengthCm)} سانتی‌متر، رج ${fa(S.raj)}، ${fa(rw)}×${fa(rh)} گره، ${$('#region').selectedOptions[0].text}`,c.width-m,m*0.4);
+  const top=m+head;
+  drawMapRegion(g,m-R.x0*cell,top-R.y0*cell*asp,cell,cell*asp,R.x0,R.y0,R.x1,R.y1,{grid:true,symbols:st.symbols&&cell>=(st.mono?5:11),mono:st.mono,center:true,thin:0.6,bold:Math.max(1.2,cell/8)});
+  g.fillStyle='#1A2036';g.font=`${Math.max(10,Math.min(16,cell))}px Vazirmatn,Tahoma`;g.textAlign='center';g.textBaseline='middle';
+  for(let x=R.x0;x<R.x1;x++){const n=colLabel(x);if(n%10===0){const px=m+(x-R.x0+.5)*cell;g.fillText(fa(n),px,top-4*u);g.fillText(fa(n),px,top+mh+4*u)}}
+  for(let y=R.y0;y<R.y1;y++){const n=H-y;if(n%10===0){const py=top+(y-R.y0+.5)*cell*asp;g.textAlign='left';g.fillText(fa(n),m+mw+1.5*u,py);g.textAlign='right';g.fillText(fa(n),m-1.5*u,py)}}
+  if(items.length)legendBlock(g,m,top+mh+9*u,mw,items,u,st.mono);
   await saveFile(baseName()+'-map.png',await toBlob(c));
 }
 async function exportRug(){
@@ -1405,59 +1425,83 @@ function regionRect(){const r=$('#region').value,rtl=$('#rtl').checked;
   if(r==='half')return{x0:0,y0:Math.floor(H/2),x1:W,y1:H};
   if(r==='quarter')return rtl?{x0:Math.floor(W/2),y0:Math.floor(H/2),x1:W,y1:H}:{x0:0,y0:Math.floor(H/2),x1:Math.ceil(W/2),y1:H};
   return{x0:0,y0:0,x1:W,y1:H}}
+function paperSize(){const v=$('#paper').value;if(v==='custom')return[Math.max(100,+$('#paperW').value||500),Math.max(100,+$('#paperH').value||700)];const[w,h]=v.split('x').map(Number);return[w,h]}
+const PG={mg:8,gx:7,head:10,foot:6};
 function sheetLayout(){
-  if(!W)return null;const pa=$('#paper').value==='a3'?[297,420]:[210,297],c=+$('#cellMm').value,asp=aspect(),R=regionRect(),rw=R.x1-R.x0,rh=R.y1-R.y0;
+  if(!W)return null;const P=paperSize(),asp=aspect(),R=regionRect(),rw=R.x1-R.x0,rh=R.y1-R.y0,ov=+$('#overlap').value||0;
+  let c=$('#sizeMode').value==='width'?(Math.max(5,+$('#printW').value||100)*10/rw):Math.max(1,Math.min(15,+$('#cellMm').value||3));
+  const custom=$('#perSheet').value==='custom',o=$('#orient').value,legend=$('#pageLegend').checked;
+  const opts=o==='p'?[[Math.min(...P),Math.max(...P)]]:o==='l'?[[Math.max(...P),Math.min(...P)]]:[P,[P[1],P[0]]];
   let best=null;
-  for(const[pw,ph]of[pa,[pa[1],pa[0]]]){const kx=Math.max(10,Math.floor((pw-24-10)/c/10)*10),ky=Math.max(10,Math.floor((ph-24-22)/(c*asp)/10)*10);
-    const cols=Math.ceil(rw/kx),rows=Math.ceil(rh/ky),pages=cols*rows;if(!best||pages<best.pages)best={pw,ph,kx,ky,cols,rows,pages,c,R}}
+  for(const[pw,ph]of opts){
+    const per=Math.max(1,Math.floor((pw-2*PG.mg)/52)),legH=legend?Math.ceil(Math.min(palette.length,per*4)/per)*6.4+4:0;
+    const aw=pw-2*PG.mg-2*PG.gx,ah=ph-2*PG.mg-PG.head-PG.foot-legH;if(aw<20||ah<20)continue;
+    let cc=c,kx,ky,fitNote='';
+    if(custom){kx=Math.max(10,+$('#sheetCols').value||60);ky=Math.max(10,+$('#sheetRows').value||80);const fitC=Math.min(aw/kx,ah/(ky*asp));if(fitC<cc){cc=fitC;fitNote='shrunk'}}
+    else{kx=Math.floor(aw/cc);ky=Math.floor(ah/(cc*asp));if(kx>=20)kx=Math.floor(kx/10)*10;if(ky>=20)ky=Math.floor(ky/10)*10}
+    kx=Math.min(kx,rw);ky=Math.min(ky,rh);if(kx<1||ky<1)continue;
+    const sx=Math.max(1,kx-ov),sy=Math.max(1,ky-ov),cols=Math.max(1,Math.ceil((rw-ov)/sx)),rows=Math.max(1,Math.ceil((rh-ov)/sy)),pages=cols*rows;
+    if(!best||pages<best.pages)best={pw,ph,kx,ky,sx,sy,cols,rows,pages,c:cc,R,ov,legH,fitNote,asp}
+  }
   return best;
+}
+function updateSheetInfo(){
+  const pc=$('#paper').value==='custom';$('#paperCustom').hidden=!pc;const wm=$('#sizeMode').value==='width';$('#cellRow').hidden=wm;$('#widthRow').hidden=!wm;$('#perSheetCustom').hidden=$('#perSheet').value!=='custom';
+  const L=sheetLayout();if(!L){$('#sheetInfo').textContent='کاغذ برای این تنظیمات خیلی کوچک است.';return}
+  const rw=L.R.x1-L.R.x0,rh=L.R.y1-L.R.y0;
+  $('#sheetInfo').innerHTML=`<b>${fa(L.pages)} برگه</b> (${fa(L.cols)} ستون × ${fa(L.rows)} ردیف) روی کاغذ ${fa(Math.round(L.pw))}×${fa(Math.round(L.ph))} میلی‌متر، به‌علاوهٔ برگهٔ راهنما.<br>هر برگه ${fa(L.kx)} گره × ${fa(L.ky)} رج؛ هر خانه ${nf(L.c,2)}×${nf(L.c*L.asp,2)} میلی‌متر؛ اندازهٔ کل نقشهٔ چاپی ${nf(rw*L.c/10,1)}×${nf(rh*L.c*L.asp/10,1)} سانتی‌متر.`+(L.fitNote?'<br>برای جا شدن گره‌های دلخواه در کاغذ، اندازهٔ خانه کوچک شد.':'')+(L.c<1.6?'<br>هشدار: خانه‌ها برای خواندن چشمی خیلی کوچک‌اند.':'');
+  const pc2=Math.max(2,+$('#pngCell').value||10);$('#pngInfo').textContent=`${fa(rw*pc2)}×${fa(Math.round(rh*pc2*aspect()))} پیکسل؛ در چاپ ۳۰۰ نقطه بر اینچ هر خانه ${nf(pc2*25.4/300,2)} میلی‌متر`;
 }
 async function exportPdf(){
   if(!grid)return;if(!window.jspdf){toast('کتابخانهٔ PDF بارگذاری نشد؛ اتصال اینترنت را بررسی کنید.');return}
-  const L=sheetLayout();if(L.pages>400){toast('بیش از ۴۰۰ برگه می‌شود؛ خانه را بزرگ‌تر کنید، کاغذ A3 یا نقشهٔ یک‌چهارم را انتخاب کنید.');return}
+  const L=sheetLayout();if(!L){toast('کاغذ برای این تنظیمات خیلی کوچک است.');return}
+  if(L.pages>500){toast('بیش از ۵۰۰ برگه می‌شود؛ خانه یا کاغذ را بزرگ‌تر کنید یا نقشهٔ یک‌چهارم را انتخاب کنید.');return}
   await document.fonts.ready;const btn=$('#expPdf');btn.disabled=true;
   try{
-    const{jsPDF}=window.jspdf,asp=aspect(),ppm=6,sym=$('#pdfSym').checked,rtl=$('#rtl').checked;
-    const doc=new jsPDF({orientation:L.pw>L.ph?'l':'p',unit:'mm',format:[L.pw,L.ph],compress:true});
+    const{jsPDF}=window.jspdf,asp=L.asp,rtl=$('#rtl').checked,st=styleOpts(),legend=$('#pageLegend').checked,c=L.c;
+    const u=Math.min(Math.max(6,14/c),9000/Math.max(L.pw,L.ph));          // canvas pixels per millimetre (keeps cells >= ~14 px)
+    const orient=L.pw>L.ph?'l':'p',doc=new jsPDF({orientation:orient,unit:'mm',format:[L.pw,L.ph],compress:true});
+    const page=()=>{const cv=document.createElement('canvas');cv.width=Math.round(L.pw*u);cv.height=Math.round(L.ph*u);const g=cv.getContext('2d');g.direction='rtl';g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);return[cv,g]};
     // cover page
-    const cv=document.createElement('canvas');cv.width=Math.round(L.pw*ppm);cv.height=Math.round(L.ph*ppm);let g=cv.getContext('2d');g.direction='rtl';
-    g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.fillStyle='#1A2036';g.textAlign='right';g.textBaseline='top';const R0=cv.width-12*ppm;
-    g.font=`bold ${7*ppm}px Vazirmatn,Tahoma`;g.fillText('نقشهٔ فرش',R0,12*ppm);
-    g.font=`${3.6*ppm}px Vazirmatn,Tahoma`;const s=specs();
-    const lines=[`ابعاد: ${fa(S.widthCm)} × ${fa(S.lengthCm)} سانتی‌متر، رج ${fa(S.raj)} (هر ${fa(S.gereh)} سانتی‌متر)، ${grade(S.raj)}`,
-      `گره‌ها: ${fa(W)} در عرض × ${fa(H)} رج، مجموع ${nf(W*H)} گره، ${nf(s.kpsi)} گره در اینچ مربع`,
-      `بخش چاپ‌شده: ${$('#region').selectedOptions[0].text}، ${fa(L.pages)} برگه، هر خانه ${fa(L.c)} میلی‌متر`,
-      `شماره‌گذاری رج‌ها از پایین؛ گره‌ها ${rtl?'از راست به چپ':'از چپ به راست'}. خطوط پررنگ هر ۱۰ گره؛ خط‌چین قرمز محور میانی فرش است.`];
-    lines.forEach((t,i)=>g.fillText(t,R0,(24+i*6)*ppm));
-    g.font=`bold ${4.2*ppm}px Vazirmatn,Tahoma`;g.fillText('راهنمای رنگ و پشم',R0,52*ppm);
-    let y=60*ppm;const kgT=s.kg;g.font=`${3.4*ppm}px Vazirmatn,Tahoma`;g.textBaseline='middle';
-    palette.forEach((c,i)=>{const rh=7*ppm;if(y>cv.height-70*ppm)return;g.fillStyle=c.hex;g.fillRect(R0-14*ppm,y,14*ppm,rh-1.5*ppm);g.strokeStyle='#0005';g.strokeRect(R0-14*ppm,y,14*ppm,rh-1.5*ppm);
-      g.fillStyle=symInk(i);g.textAlign='center';g.fillText(CODES[i]+' '+SYMS[i%SYMS.length],R0-7*ppm,y+(rh-1.5*ppm)/2);g.fillStyle='#1A2036';g.textAlign='right';
-      const n=counts[i]||0;g.fillText(`${c.fa} (${c.en||''})، ${nf(n)} گره، ${nf(n/grid.length*100,1)}٪، حدود ${nf(kgT*n/grid.length*1000)} گرم پشم`,R0-17*ppm,y+(rh-1.5*ppm)/2);y+=rh});
-    // sheet index
-    const ix=12*ppm,iw=cv.width-24*ppm,iy=Math.max(y+8*ppm,cv.height-64*ppm),ih=cv.height-iy-12*ppm,rw=L.R.x1-L.R.x0,rh2=L.R.y1-L.R.y0;
+    let[cv,g]=page();const R0=cv.width-12*u;g.fillStyle='#1A2036';g.textAlign='right';g.textBaseline='top';
+    g.font=`bold ${7*u}px Vazirmatn,Tahoma`;g.fillText('نقشهٔ فرش',R0,12*u);
+    g.font=`${3.6*u}px Vazirmatn,Tahoma`;const s=specs(),rw=L.R.x1-L.R.x0,rh2=L.R.y1-L.R.y0;
+    [`ابعاد: ${fa(S.widthCm)} × ${fa(S.lengthCm)} سانتی‌متر، رج ${fa(S.raj)} (هر ${fa(S.gereh)} سانتی‌متر)، ${grade(S.raj)}`,
+     `گره‌ها: ${fa(W)} در عرض × ${fa(H)} رج، مجموع ${nf(W*H)} گره، ${nf(s.kpsi)} گره در اینچ مربع`,
+     `بخش چاپ‌شده: ${$('#region').selectedOptions[0].text}، ${fa(L.pages)} برگه، هر خانه ${nf(c,2)} میلی‌متر، اندازهٔ کل ${nf(rw*c/10,1)}×${nf(rh2*c*asp/10,1)} سانتی‌متر`,
+     `رج‌ها از پایین شمرده می‌شوند و گره‌ها ${rtl?'از راست به چپ':'از چپ به راست'}. خط پررنگ هر ۱۰ گره؛ خط‌چین قرمز محور میانی فرش است.`+(L.ov?` ${fa(L.ov)} گرهٔ لبهٔ هر برگه در برگهٔ بعدی تکرار شده و خاکستری است.`:'')
+    ].forEach((t,i)=>g.fillText(t,R0,(24+i*6)*u));
+    g.font=`bold ${4.2*u}px Vazirmatn,Tahoma`;g.fillText('راهنمای رنگ و پشم',R0,52*u);
+    let y=60*u;g.font=`${3.4*u}px Vazirmatn,Tahoma`;g.textBaseline='middle';
+    palette.forEach((col,i)=>{const rh=7*u;if(y>cv.height-70*u)return;g.fillStyle=st.mono?'#fff':col.hex;g.fillRect(R0-14*u,y,14*u,rh-1.5*u);g.strokeStyle='#000';g.lineWidth=Math.max(1,0.25*u);g.strokeRect(R0-14*u,y,14*u,rh-1.5*u);
+      g.fillStyle=st.mono?'#000':symInk(i);g.textAlign='center';g.fillText(CODES[i]+' '+SYMS[i%SYMS.length],R0-7*u,y+(rh-1.5*u)/2);g.fillStyle='#1A2036';g.textAlign='right';
+      const n=counts[i]||0;g.fillText(`${col.fa} (${col.en||''})، ${col.hex}، ${nf(n)} گره، ${nf(n/grid.length*100,1)}٪، حدود ${nf(s.kg*n/grid.length*1000)} گرم پشم`,R0-17*u,y+(rh-1.5*u)/2);y+=rh});
+    const ix=12*u,iw=cv.width-24*u,iy=Math.max(y+8*u,cv.height-80*u),ih=cv.height-iy-12*u;
     const sc=Math.min(iw/rw,ih/(rh2*asp)),ox=ix+(iw-rw*sc)/2,oy=iy;g.drawImage(colorCanvas,L.R.x0,L.R.y0,rw,rh2,ox,oy,rw*sc,rh2*asp*sc);
-    g.strokeStyle='#1A2036';g.lineWidth=2;g.font=`bold ${3.2*ppm}px Vazirmatn,Tahoma`;g.textAlign='center';
-    for(let r=0;r<L.rows;r++)for(let cc=0;cc<L.cols;cc++){const sx=rtl?rw-Math.min(rw,(cc+1)*L.kx):cc*L.kx,sw=Math.min(L.kx,rw-cc*L.kx),sy=rh2-Math.min(rh2,(r+1)*L.ky),sh=Math.min(L.ky,rh2-r*L.ky);
-      g.strokeRect(ox+sx*sc,oy+sy*asp*sc,sw*sc,sh*asp*sc);g.fillStyle='rgba(255,255,255,.85)';const t=`${fa(r+1)}-${fa(cc+1)}`;const tw=g.measureText(t).width+6;g.fillRect(ox+(sx+sw/2)*sc-tw/2,oy+(sy+sh/2)*asp*sc-2*ppm,tw,4*ppm);g.fillStyle='#1A2036';g.fillText(t,ox+(sx+sw/2)*sc,oy+(sy+sh/2)*asp*sc)}
+    g.strokeStyle='#1A2036';g.lineWidth=2;g.font=`bold ${3.2*u}px Vazirmatn,Tahoma`;g.textAlign='center';
+    const pageRect=(r,cc)=>{const ry1=L.R.y1-r*L.sy,ry0=Math.max(L.R.y0,ry1-L.ky);let rx0,rx1;if(rtl){rx1=L.R.x1-cc*L.sx;rx0=Math.max(L.R.x0,rx1-L.kx)}else{rx0=L.R.x0+cc*L.sx;rx1=Math.min(L.R.x1,rx0+L.kx)}return{rx0,rx1,ry0,ry1}};
+    for(let r=0;r<L.rows;r++)for(let cc=0;cc<L.cols;cc++){const q=pageRect(r,cc);g.strokeRect(ox+(q.rx0-L.R.x0)*sc,oy+(q.ry0-L.R.y0)*asp*sc,(q.rx1-q.rx0)*sc,(q.ry1-q.ry0)*asp*sc);
+      const t=`${fa(r+1)}-${fa(cc+1)}`,tw=g.measureText(t).width+6,cx=ox+((q.rx0+q.rx1)/2-L.R.x0)*sc,cy=oy+((q.ry0+q.ry1)/2-L.R.y0)*asp*sc;g.fillStyle='rgba(255,255,255,.85)';g.fillRect(cx-tw/2,cy-2*u,tw,4*u);g.fillStyle='#1A2036';g.fillText(t,cx,cy)}
     doc.addImage(cv.toDataURL('image/jpeg',0.92),'JPEG',0,0,L.pw,L.ph);
-    // sheets: row 1 = bottom band; column 1 = start side
-    const pxk=Math.max(8,Math.round(L.c*ppm*1.4));let done=0;
+    // map sheets, drawn in true millimetres: one cell = c mm on paper
+    let done=0;const cw=c*u,ch=c*asp*u;
     for(let r=0;r<L.rows;r++)for(let cc=0;cc<L.cols;cc++){
-      const ry1=L.R.y1-r*L.ky,ry0=Math.max(L.R.y0,ry1-L.ky);
-      let rx0,rx1;if(rtl){rx1=L.R.x1-cc*L.kx;rx0=Math.max(L.R.x0,rx1-L.kx)}else{rx0=L.R.x0+cc*L.kx;rx1=Math.min(L.R.x1,rx0+L.kx)}
-      const kw=rx1-rx0,kh=ry1-ry0,mL=40,mT=60,mB=40,ch=pxk*asp;
-      const pc=document.createElement('canvas');pc.width=kw*pxk+2*mL;pc.height=Math.round(kh*ch)+mT+mB;g=pc.getContext('2d');g.direction='rtl';g.fillStyle='#fff';g.fillRect(0,0,pc.width,pc.height);
-      drawMapRegion(g,mL-rx0*pxk,mT-ry0*ch,pxk,ch,rx0,ry0,rx1,ry1,{grid:true,symbols:sym,center:true,thin:0.8,bold:2.2});
-      g.fillStyle='#1A2036';g.font=`bold 22px Vazirmatn,Tahoma`;g.textAlign='right';g.textBaseline='top';
-      g.fillText(`برگهٔ ${fa(r+1)}-${fa(cc+1)}، رج ${fa(H-ry1+1)} تا ${fa(H-ry0)}، گره ${fa(Math.min(colLabel(rx0),colLabel(rx1-1)))} تا ${fa(Math.max(colLabel(rx0),colLabel(rx1-1)))}`,pc.width-mL,10);
-      g.font='14px Vazirmatn,Tahoma';g.textBaseline='middle';g.textAlign='center';
-      for(let x=rx0;x<rx1;x++){const n=colLabel(x);if(n%10===0){g.fillText(fa(n),mL+(x-rx0+.5)*pxk,mT-12);g.fillText(fa(n),mL+(x-rx0+.5)*pxk,pc.height-mB+14)}}
-      for(let yy=ry0;yy<ry1;yy++){const n=H-yy;if(n%10===0){const py=mT+(yy-ry0+.5)*ch;g.textAlign='left';g.fillText(fa(n),pc.width-mL+4,py);g.textAlign='right';g.fillText(fa(n),mL-4,py)}}
-      const iw2=L.pw-24,ih2=L.ph-24,s2=Math.min(iw2/pc.width,ih2/pc.height);
-      if(r+cc>=0)doc.addPage([L.pw,L.ph],L.pw>L.ph?'l':'p');
-      doc.addImage(pc.toDataURL('image/png'),'PNG',12+(iw2-pc.width*s2)/2,12,pc.width*s2,pc.height*s2,undefined,'FAST');
-      done++;if(done%4===0){btn.textContent=`در حال ساخت… ${fa(done)}/${fa(L.pages)}`;await new Promise(r=>setTimeout(r,0))}
+      const{rx0,rx1,ry0,ry1}=pageRect(r,cc),kw=rx1-rx0,kh=ry1-ry0;[cv,g]=page();
+      const mapW=kw*cw,mapH=kh*ch,left=(cv.width-mapW)/2,top=(PG.mg+PG.head)*u;
+      drawMapRegion(g,left-rx0*cw,top-ry0*ch,cw,ch,rx0,ry0,rx1,ry1,{grid:true,symbols:st.symbols,mono:st.mono,center:true,thin:Math.max(0.6,0.12*u),bold:Math.max(1.6,0.35*u)});
+      if(L.ov){g.fillStyle='rgba(0,0,0,.16)';                       // knots repeated from the previous sheets
+        if(r>0){const oy2=ry1-L.ov;g.fillRect(left,top+(oy2-ry0)*ch,mapW,L.ov*ch)}
+        if(cc>0){const ow=L.ov*cw;g.fillRect(rtl?left+mapW-ow:left,top,ow,mapH)}}
+      g.strokeStyle='#000';g.lineWidth=Math.max(1.5,0.3*u);g.strokeRect(left,top,mapW,mapH);
+      g.fillStyle='#1A2036';g.font=`bold ${4*u}px Vazirmatn,Tahoma`;g.textAlign='right';g.textBaseline='top';
+      g.fillText(`برگهٔ ${fa(r+1)}-${fa(cc+1)} از ${fa(L.rows)}×${fa(L.cols)}، رج ${fa(H-ry1+1)} تا ${fa(H-ry0)}، گره ${fa(Math.min(colLabel(rx0),colLabel(rx1-1)))} تا ${fa(Math.max(colLabel(rx0),colLabel(rx1-1)))}`,cv.width-PG.mg*u,PG.mg*u);
+      g.textAlign='left';g.font=`${2.8*u}px Vazirmatn,Tahoma`;g.fillText(`خانه ${nf(c,2)} میلی‌متر، رج ${fa(S.raj)}`,PG.mg*u,PG.mg*u+0.8*u);
+      const fs=Math.max(2.2,Math.min(3,c*0.9))*u;g.font=`${fs}px Vazirmatn,Tahoma`;g.textBaseline='middle';g.textAlign='center';
+      for(let x=rx0;x<rx1;x++){const n=colLabel(x);if(n%10===0){const px=left+(x-rx0+.5)*cw;g.fillText(fa(n),px,top-2.6*u);g.fillText(fa(n),px,top+mapH+2.6*u)}}
+      for(let yy=ry0;yy<ry1;yy++){const n=H-yy;if(n%10===0){const py=top+(yy-ry0+.5)*ch;g.textAlign='left';g.fillText(fa(n),left+mapW+1.2*u,py);g.textAlign='right';g.fillText(fa(n),left-1.2*u,py)}}
+      if(legend){const items=usedIn(rx0,ry0,rx1,ry1);legendBlock(g,PG.mg*u,top+mapH+PG.foot*u,cv.width-2*PG.mg*u,items,u,st.mono)}
+      doc.addPage([L.pw,L.ph],orient);doc.addImage(cv.toDataURL('image/png'),'PNG',0,0,L.pw,L.ph,undefined,'FAST');
+      done++;if(done%2===0){btn.textContent=`در حال ساخت… ${fa(done)}/${fa(L.pages)}`;await new Promise(r=>setTimeout(r,0))}
     }
     await saveFile(baseName()+'-sheets.pdf',doc.output('blob'));
   }catch(e){console.error(e);toast('ساخت PDF ناموفق بود: '+e.message)}
@@ -1476,7 +1520,7 @@ function instructionsTxt(){
 }
 function gridCsv(){let t='';for(let y=0;y<H;y++){const row=[];for(let x=0;x<W;x++)row.push(CODES[grid[y*W+x]]);t+=row.join(',')+'\n'}return'﻿'+t}
 /* ---------- saving & restoring ---------- */
-const EXP_IDS=['paper','cellMm','region','pngCell'],EXP_CHK=['pdfSym','rtl'];
+const EXP_IDS=['paper','paperW','paperH','orient','sizeMode','cellMm','printW','perSheet','sheetCols','sheetRows','overlap','region','mapStyle','pngCell'],EXP_CHK=['pageLegend','pngLegend','rtl'];
 let curProj={id:null,name:''},restoring=false,booted=false,srcBlob=null,autoT=0;
 const DB={
   open(){if(!this.p)this.p=new Promise((res,rej)=>{try{const r=indexedDB.open('naqsheh',1);r.onupgradeneeded=()=>r.result.createObjectStore('projects',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return this.p},
@@ -1484,7 +1528,7 @@ const DB={
   put(o){return this.run('readwrite',s=>s.put(o))},get(id){return this.run('readonly',s=>s.get(id))},del(id){return this.run('readwrite',s=>s.delete(id))},all(){return this.run('readonly',s=>s.getAll())}
 };
 function exportSettings(){const o={};EXP_IDS.forEach(id=>o[id]=$('#'+id).value);EXP_CHK.forEach(id=>o[id]=$('#'+id).checked);return o}
-function applyExportSettings(o){if(!o)return;EXP_IDS.forEach(id=>{if(o[id]!=null)$('#'+id).value=o[id]});EXP_CHK.forEach(id=>{if(o[id]!=null)$('#'+id).checked=o[id]})}
+function applyExportSettings(o){if(!o)return;if(o.paper==='a3')o.paper='297x420';if(o.paper==='a4')o.paper='210x297';if(o.pdfSym===false&&!o.mapStyle)o.mapStyle='color';EXP_IDS.forEach(id=>{if(o[id]!=null)$('#'+id).value=o[id]});EXP_CHK.forEach(id=>{if(o[id]!=null)$('#'+id).checked=o[id]})}
 async function sourceBlob(){if(srcBlob&&srcBlob.id===src._id)return srcBlob.blob;const b=await new Promise(r=>src.toBlob(r,'image/jpeg',0.92));srcBlob={id:src._id,blob:b};return b}
 function thumb(){const c=document.createElement('canvas'),s=Math.min(1,96/Math.max(W,H));c.width=Math.max(1,Math.round(W*s));c.height=Math.max(1,Math.round(H*s));const g=c.getContext('2d');g.imageSmoothingEnabled=true;g.drawImage(colorCanvas,0,0,c.width,c.height);return c.toDataURL('image/png')}
 async function snapshot(){
@@ -1688,7 +1732,7 @@ $('#rowNum').addEventListener('change',e=>setRow(+e.target.value));
 $('#rowSpeak').addEventListener('click',()=>{try{const u=new SpeechSynthesisUtterance(`رج ${rowSel}. `+rowRuns(rowSel).map(x=>`${x.n} ${palette[x.k].fa}`).join('، '));u.lang='fa-IR';speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){toast('خواندن با صدا در این مرورگر در دسترس نیست.')}});
 [...EXP_IDS,...EXP_CHK].forEach(id=>$('#'+id).addEventListener('change',markDirty));
 $('#rtl').addEventListener('change',()=>{redraw();updateSheetInfo();if(rowOn)renderRow()});
-['#paper','#cellMm','#region'].forEach(s=>$(s).addEventListener('change',updateSheetInfo));
+['#paper','#paperW','#paperH','#orient','#sizeMode','#cellMm','#printW','#perSheet','#sheetCols','#sheetRows','#overlap','#region','#mapStyle','#pageLegend','#pngCell'].forEach(s=>{$(s).addEventListener('change',updateSheetInfo);$(s).addEventListener('input',updateSheetInfo)});
 $('#expPdf').addEventListener('click',exportPdf);$('#expPng').addEventListener('click',exportPng);$('#expRug').addEventListener('click',exportRug);
 $('#expTxt').addEventListener('click',()=>grid&&saveFile(baseName()+'-talim.txt',instructionsTxt()));
 $('#expCsv').addEventListener('click',()=>grid&&saveFile(baseName()+'-colors.csv',legendCsv()));
@@ -1735,7 +1779,7 @@ const TOUR=[
  {chap:'۶ — نما',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
  {chap:'۶ — نما',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
  {chap:'۶ — نما',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
- {chap:'۷ — خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'اندازهٔ کاغذ و اندازهٔ هر خانه را انتخاب کنید. نقشه به چند برگه تقسیم می‌شود و شمار برگه‌ها زیر همین بخش نوشته می‌شود. برای فرش‌های قرینه می‌توانید فقط نیمه یا یک‌چهارم نقشه را چاپ کنید.'},
+ {chap:'۷ — خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'کاغذ (A4 تا A0، Letter یا اندازهٔ دلخواه) و جهت آن را انتخاب کنید. اندازه را با «اندازهٔ هر خانه» به میلی‌متر یا با «عرض کل نقشهٔ چاپی» تعیین کنید؛ هر خانه دقیقاً به همان اندازه چاپ می‌شود. شمار گره در هر برگه را خودکار بگذارید یا خودتان بنویسید، و با همپوشانی چند گره، لبهٔ برگه‌ها را راحت کنار هم بگذارید. برای فرش‌های قرینه نیمه یا یک‌چهارم نقشه کافی است.'},
  {chap:'۷ — خروجی',tab:'export',sel:'#rtl',up:'.check',title:'جهت شماره‌گذاری',text:'اگر بافنده از راست به چپ گره می‌زند این گزینه را روشن نگه دارید؛ شمارهٔ گره‌ها، برگه‌ها و رج‌خوان همه از راست شروع می‌شوند. «نماد در خانه‌ها» برای چاپ سیاه‌وسفید لازم است.'},
  {chap:'۷ — خروجی',tab:'export',sel:'#expPdf',title:'ساخت PDF',text:'این دکمه فایل PDF می‌سازد: یک برگهٔ راهنما با رنگ‌ها، شمار گره و پشم هر رنگ و نقشهٔ برگه‌ها، و پس از آن برگه‌های نقشه با شمارهٔ رج و گره. فایل را ذخیره و چاپ کنید.'},
  {chap:'۷ — خروجی',tab:'export',sel:'#expPng',up:'.group',title:'فایل‌های دیگر',text:'تصویر کامل نقشه، پیش‌نمایش فرش برای سفارش‌دهنده، تعلیم رج‌به‌رج به صورت متن، فهرست رنگ و پشم و دادهٔ خام نقشه را هم می‌توانید جداگانه ذخیره کنید.'},

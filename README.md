@@ -18,15 +18,15 @@ It is a single static page (`index.html`) with no build step. Open it in a brows
 - **Saving and continuing later:** every change is saved automatically in the browser (IndexedDB), and reopening the page restores the last session: the image, crop and rotation, size and raj, palette, filters, pattern and export options. Under «پروژه‌های من» you can keep several named projects with thumbnails, open or delete them, and save a copy as a new version. A project can also be exported to a JSON file and opened on another computer.
 - **Guided tutorial (راهنمای گام‌به‌گام):** a 39-step Farsi walkthrough that opens on the first visit and from the header button. It switches tabs by itself and points a bouncing yellow arrow at each control while explaining what it does, from uploading an image to exporting the weaving map.
 - **Export:**
-  - Printable PDF sheets (A4/A3) with 10-knot grid lines, rows numbered from the bottom, a centre axis and symbols for black-and-white printing.
-  - A cover page with the colour and wool key and an index of the sheets.
-  - Full map PNG and rug preview PNG.
+  - Printable PDF sheets laid out in true millimetres, so each knot cell prints at exactly the chosen size. Paper A4 to A0, Letter, Legal, Tabloid or a custom size; automatic, portrait or landscape orientation; size the map by cell size (mm) or by total printed width (cm); knots per sheet automatic or custom; 0–5 knots of overlap between sheets (shaded); full, half or quarter map; colour with symbols, colour only, or black-and-white symbols for photocopying. Every sheet has 10-knot grid lines, rows numbered from the bottom, knot numbers on both sides, the centre axis and its own colour legend listing the colours used on that sheet with knot counts.
+  - A cover page with the colour and wool key (code, symbol, name, hex, knots, share, wool weight) and an index showing where each sheet sits on the carpet.
+  - Map PNG at any pixels-per-knot (2–60), with optional colour legend, using the same region and print style; rug preview PNG.
   - Row-by-row *ta'lim* instructions (TXT), colour/wool list (CSV) and raw knot grid (CSV).
   - A project file (JSON) you can save and reopen.
 
 ## Developer
 
-Designed and developed by **سورنا سهیلی‌نژاد** (Sourena Soheili-Nejad).
+Designed and developed by **سورنا سهیلی‌نژاد** (Sourena Soheili-Nejad), commissioned by **دکتر سهیلا شعیبی** (Dr. Soheila Shoaibi).
 
 ## Dependencies
 
