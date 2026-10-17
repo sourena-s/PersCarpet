@@ -24,6 +24,10 @@ It is a single static page (`index.html`) with no build step. Open it in a brows
   - Row-by-row *ta'lim* instructions (TXT), colour/wool list (CSV) and raw knot grid (CSV).
   - A project file (JSON) you can save and reopen.
 
+## Developer
+
+Designed and developed by **سورنا سهیلی‌نژاد** (Sourena Soheili-Nejad).
+
 ## Dependencies
 
 Loaded from CDNs at runtime: [jsPDF 2.5.1](https://github.com/parallax/jsPDF) for PDF export, and the Vazirmatn and Lalezar fonts from Google Fonts.
