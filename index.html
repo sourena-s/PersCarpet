@@ -132,6 +132,18 @@ input[type=number]{direction:ltr;text-align:right}
 .exp:last-child{border-bottom:0}
 .exp b{font-size:13px} .exp p{margin:0;font-size:12px;color:var(--muted)}
 .ltr{direction:ltr;unicode-bidi:isolate}
+.tabs,.pane{flex:none}
+.chipbtn[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.gcard{border:1px solid var(--line);background:var(--paper);border-radius:5px;padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:2px;text-align:right}
+.gcard:hover{border-color:var(--accent)}
+.gcard[aria-pressed="true"]{border-color:var(--madder);box-shadow:inset 0 0 0 1px var(--madder)}
+.gcard img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:3px;background:var(--stage);margin-bottom:4px}
+.gcard b{font-size:12px;line-height:1.4} .gcard small{font-size:10.5px;color:var(--muted);line-height:1.4}
+.warnrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px}
+.warnrow i{width:16px;height:16px;border-radius:2px;border:1px solid rgba(0,0,0,.25);display:inline-block}
+.level{font-weight:700;padding:1px 8px;border-radius:999px;font-size:12px}
+.level.ok{background:#DDEFD9;color:#245C22}.level.mid{background:#FCEBC4;color:#7A5200}.level.hard{background:#F6D3CF;color:#8A231B}
 /* projects */
 .projsave{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px}
 .projlist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:5px;overflow:hidden}
@@ -193,9 +205,16 @@ input[type=number]{direction:ltr;text-align:right}
         </div>
         <div class="group">
           <h3>تصویر مبدأ</h3>
-          <label class="drop" id="drop" for="file"><strong>انتخاب تصویر</strong><span>یا تصویر را اینجا بکشید یا جای‌گذاری (Paste) کنید · JPG، PNG، WebP</span></label>
+          <label class="drop" id="drop" for="file"><strong>انتخاب تصویر</strong><span>یا تصویر را اینجا بکشید یا جای‌گذاری (Paste) کنید</span><span class="ltr">JPG / PNG / WebP</span></label>
           <input type="file" id="file" accept="image/*" hidden>
-          <div class="row"><button class="btn" id="useSample">نمونهٔ لچک‌ترنج</button><span class="hint" id="srcName">طرح نمونه</span></div>
+          <p class="hint">تصویر فعلی: <b id="srcName">طرح نمونه</b></p>
+        </div>
+        <div class="group" id="galleryGroup">
+          <h3>کتابخانهٔ طرح‌های نمونه</h3>
+          <p class="hint">طرح‌های سنتی مناطق مختلف ایران، دسته‌بندی‌شده بر اساس منطقه و نوع طرح. با انتخاب هر طرح، ابعاد، رج، پالت، قرینه و حاشیهٔ مناسب آن هم تنظیم می‌شود.</p>
+          <div class="chiprow" id="galRegion"></div>
+          <div class="chiprow" id="galType"></div>
+          <div class="gallery" id="gallery"></div>
         </div>
         <div class="group">
           <h3>چرخش و قرینه</h3>
@@ -205,7 +224,7 @@ input[type=number]{direction:ltr;text-align:right}
             <button class="btn" id="flipH">آینه افقی ↔</button>
             <button class="btn" id="flipV">آینه عمودی ↕</button>
           </div>
-          <label class="field"><span>صاف کردن (Straighten)</span><input type="range" id="fine" min="-45" max="45" step="0.5" value="0"><output id="fineOut">0°</output></label>
+          <label class="field"><span>صاف کردن (Straighten)</span><input type="range" id="fine" min="-45" max="45" step="0.5" value="0"><output id="fineOut">۰°</output></label>
         </div>
         <div class="group">
           <h3>برش (Crop)</h3>
@@ -228,7 +247,7 @@ input[type=number]{direction:ltr;text-align:right}
           <h3>رج و ریزبافتی (Knot density)</h3>
           <label class="field2"><span>رج</span><select id="raj"></select></label>
           <label class="field2"><span>طول گره (Gereh)</span><select id="gereh"><option value="7">۷ سانتی‌متر (تبریز)</option><option value="6.5">۶٫۵ سانتی‌متر (کاشان، اصفهان)</option></select></label>
-          <label class="field"><span>تراکم پود به تار (Rows ÷ knots)</span><input type="range" id="rowRatio" min="0.7" max="1.6" step="0.05"><output id="rowRatioOut">1.00</output></label>
+          <label class="field"><span>تراکم پود به تار (Rows ÷ knots)</span><input type="range" id="rowRatio" min="0.7" max="1.6" step="0.05"><output id="rowRatioOut">۱٫۰۰</output></label>
           <p class="hint">رج یعنی شمار گره‌ها در یک گره‌ (حدود ۷ سانتی‌متر) از عرض فرش. عدد ۱ یعنی گره‌ها مربعی‌اند؛ بیشتر از ۱ یعنی رج‌ها در طول فشرده‌ترند و خانه‌های نقشه کوتاه‌تر می‌شوند.</p>
           <dl class="specs" id="specs"></dl>
         </div>
@@ -237,6 +256,9 @@ input[type=number]{direction:ltr;text-align:right}
           <label class="field2"><span>گره در روز برای هر بافنده</span><input type="number" id="kpd" min="500" max="30000" step="500"></label>
           <label class="field2"><span>شمار بافنده‌ها</span><input type="number" id="weavers" min="1" max="12" step="1"></label>
           <label class="field2"><span>پشم پرز (کیلوگرم بر مترمربع)</span><input type="number" id="kgm2" min="0.5" max="8" step="0.1"></label>
+          <label class="field2"><span>دستمزد هر ۱۰۰۰ گره</span><input type="number" id="wage" min="0" step="1000"></label>
+          <label class="field2"><span>قیمت هر کیلو پشم</span><input type="number" id="woolPrice" min="0" step="10000"></label>
+          <p class="hint">مبلغ‌ها را به هر واحد پولی که می‌خواهید وارد کنید (مثلاً تومان)؛ هزینه با همان واحد حساب می‌شود.</p>
           <dl class="specs" id="estimate"></dl>
         </div>
       </section>
@@ -255,7 +277,7 @@ input[type=number]{direction:ltr;text-align:right}
             <button data-v="fitLibrary" aria-pressed="false">از کل رنگ‌ها</button>
             <button data-v="exact" aria-pressed="false">رنگ دقیق تصویر</button>
           </div>
-          <label class="field" id="countField"><span>شمار رنگ‌ها</span><input type="range" id="count" min="2" max="32" step="1"><output id="countOut">8</output></label>
+          <label class="field" id="countField"><span>شمار رنگ‌ها</span><input type="range" id="count" min="2" max="32" step="1"><output id="countOut">۸</output></label>
           <button class="btn primary" id="applyPal">ساخت پالت برای این تصویر</button>
           <p class="hint" id="methodHint"></p>
         </div>
@@ -272,6 +294,11 @@ input[type=number]{direction:ltr;text-align:right}
           <div class="pal" id="pal"></div>
           <div class="row"><button class="btn" id="addColor">+ افزودن رنگ</button><button class="btn" id="removeRare">حذف رنگ‌های کم‌کاربرد (&lt;۰٫۵٪)</button></div>
           <div class="lib" id="lib" hidden></div>
+        </div>
+        <div class="group" id="analysisGroup">
+          <h3>تحلیل گره‌ها و بافت‌پذیری</h3>
+          <dl class="specs" id="analysis"></dl>
+          <div id="simWarn" class="group" style="gap:6px"></div>
         </div>
       </section>
 
@@ -322,6 +349,13 @@ input[type=number]{direction:ltr;text-align:right}
             <button data-v="quad" aria-pressed="false">لچکی (یک‌چهارم)</button>
           </div>
           <p class="hint">بیشتر فرش‌های لچک‌ترنج با نقشهٔ یک‌چهارم بافته می‌شوند: بافنده یک ربع را می‌بافد و بقیه را قرینه می‌کند.</p>
+        </div>
+        <div class="group" id="repeatGroup">
+          <h3>تکرار نقش (Repeat)</h3>
+          <label class="field"><span>تکرار در عرض</span><input type="range" data-bind="repeat.x" data-lv="1" min="1" max="6" step="1"><output></output></label>
+          <label class="field"><span>تکرار در طول</span><input type="range" data-bind="repeat.y" data-lv="1" min="1" max="8" step="1"><output></output></label>
+          <label class="check"><input type="checkbox" data-bind="repeat.mirror" data-lv="1"> قرینه کردن خانه‌های یک‌درمیان</label>
+          <p class="hint">برای طرح‌های افشان و خشتی: بخش برش‌خورده چند بار در عرض و طول تکرار می‌شود. کادر برش هم‌تناسب با یک واحد تکرار می‌شود.</p>
         </div>
         <div class="group">
           <h3>حاشیه (Border)</h3>
@@ -432,7 +466,7 @@ const LIB=[
  ['sormei','سرمه‌ای','Navy','#1D2544'],['lajevardi','لاجوردی','Lapis','#27408C'],['abi','آبی','Blue','#3F6EAB'],['asemani','آسمانی','Sky blue','#93B6D0'],
  ['firuzei','فیروزه‌ای','Turquoise','#3A9693'],['yashmi','یشمی','Jade','#3D7C5D'],['sabz','سبز','Green','#4F7A35'],['zeytuni','زیتونی','Olive','#6E6A2F'],
  ['pestei','پسته‌ای','Pistachio','#A9B47D'],['sabztire','سبز تیره','Dark green','#1E463A'],['banafsh','بنفش','Violet','#5A3D6B'],['yasi','یاسی','Lilac','#A28BAD'],
- ['qahvei','قهوه‌ای','Brown','#5C3A24'],['gerdui','گردویی','Walnut','#432B1F'],['siah','سیاه','Black-brown','#211A16'],['fili','فیلی','Elephant grey','#5B5A5A']
+ ['qahvei','قهوه‌ای','Brown','#5C3A24'],['zereshki','زرشکی','Barberry red','#8A1F3A'],['jegari','جگری','Liver maroon','#5B1D1F'],['golsorkhi','گل‌سرخی','Rose red','#B4515A'],['nili','نیلی','Indigo','#22335E'],['mesi','مسی','Copper','#A35A35'],['khardali','خردلی','Mustard','#B79A3B'],['kahi','کاهی','Straw','#CDB984'],['fandoghi','فندقی','Hazelnut','#8A6A4A'],['badenjani','بادمجانی','Aubergine','#3E2240'],['chamani','چمنی','Grass green','#6B9A4C'],['khakestari','خاکستری','Ash grey','#9A958C'],['gerdui','گردویی','Walnut','#432B1F'],['siah','سیاه','Black-brown','#211A16'],['fili','فیلی','Elephant grey','#5B5A5A']
 ].map(([id,fa,en,hex])=>({id,fa,en,hex}));
 const LIBM=Object.fromEntries(LIB.map(c=>[c.id,c]));
 const PRESETS=[
@@ -446,13 +480,18 @@ const PRESETS=[
  {id:'baluch',fa:'بلوچ',note:'تیره، عنابی و گردویی',ids:['albalu','annabi','sormei','gerdui','siah','shotori','kerem']},
  {id:'qom',fa:'قم ابریشمی',note:'روشن و درخشان',ids:['sefid','kerem','firuzei','asemani','golbahi','laki','talayi','pestei','yashmi','sormei','banafsh','noqrei']},
  {id:'bijar',fa:'بیجار',note:'محکم و پرکنتراست',ids:['laki','sormei','kerem','asemani','firuzei','golbahi','sabztire','gerdui']},
- {id:'all',fa:'همهٔ رنگ‌های سنتی',note:'۳۲ رنگ رنگرزی',ids:LIB.map(c=>c.id)}
+ {id:'sarouk',fa:'ساروق',note:'زمینهٔ عنابی، گل‌های صورتی',ids:['annabi','laki','golbahi','surati','sormei','lajevardi','kerem','sabz','yashmi','talayi']},
+ {id:'senneh',fa:'سنندج و سرابند',note:'بته‌جقه، سرمه‌ای و لاکی',ids:['sormei','laki','kerem','zard','asemani','sabz','golbahi','gerdui']},
+ {id:'bakhtiari',fa:'بختیاری',note:'خشتی، رنگ‌های گرم',ids:['laki','sormei','kerem','zard','sabz','chamani','firuzei','gerdui','sabztire','pestei']},
+ {id:'turkmen',fa:'ترکمن',note:'آلبالویی، گردویی و سرمه‌ای',ids:['albalu','runas','annabi','jegari','sormei','kerem','gerdui','siah','narenji']},
+ {id:'gabbeh',fa:'گبه',note:'ساده و پررنگ',ids:['laki','zard','narenji','zereshki','sormei','kerem','sabz','gerdui','khardali']},
+ {id:'all',fa:'همهٔ رنگ‌های سنتی',note:'۴۳ رنگ رنگرزی',ids:LIB.map(c=>c.id)}
 ];
 const SYMS=['●','■','▲','◆','✚','✖','○','□','△','◇','▼','★','◐','◧','▶','◀','♣','♠','♥','╱','╲','┃','━','≡','#','%','@','&','$','~','^','◎'];
 const CODES=['الف','ب','پ','ت','ث','ج','چ','ح','خ','د','ذ','ر','ز','ژ','س','ش','ص','ض','ط','ظ','ع','غ','ف','ق','ک','گ','ل','م','ن','و','ه','ی'];
 const SIZES=[['پشتی',60,90],['زرع‌ونیم',100,150],['دوزرع',130,200],['قالیچه',150,225],['۶ متری',200,300],['۱۲ متری',300,400],['کناره',80,300]];
 const FD='۰۱۲۳۴۵۶۷۸۹';
-const fa=s=>String(s).replace(/\d/g,d=>FD[d]);
+const fa=s=>String(s).replace(/\d/g,d=>FD[d]).replace(/\./g,'٫');
 const nf=(n,d=0)=>Number(n).toLocaleString('fa-IR',{maximumFractionDigits:d,minimumFractionDigits:0});
 
 /* ---------- state ---------- */
@@ -466,7 +505,7 @@ const S={
   border:{on:true,guard:2,main:12,pattern:'zigzag',c1:0,c2:0,c3:0},
   abrash:35,preset:'kashan',method:'fitPreset',count:8,
   view:'map',showGrid:true,showSym:true,
-  kpd:9000,weavers:2,kgm2:2.6,srcName:'طرح نمونه'
+  kpd:9000,weavers:2,kgm2:2.6,wage:0,woolPrice:0,srcName:'طرح نمونه',repeat:{x:1,y:1,mirror:true},sampleId:'kashan'
 };
 let palette=[];
 let src=null,rotated=null,rotKey='';
@@ -519,9 +558,10 @@ function ensureRotated(){
   g.imageSmoothingQuality='high';g.drawImage(src,-w/2,-h/2);
   rotated=cv;rotKey=key;
 }
+function cropRatio(){ensureRotated();return((S.widthCm/S.repeat.x)/(S.lengthCm/S.repeat.y))*(rotated.height/rotated.width)}
 function fitCropRatio(c,full){
   ensureRotated();
-  const r=(S.widthCm/S.lengthCm)*(rotated.height/rotated.width);
+  const r=cropRatio();
   let cx=c.x+c.w/2,cy=c.y+c.h/2,w=full?1:c.w,h=w/r;
   if(h>(full?1:Math.max(c.h,1e-3))&&full){h=1;w=h*r}
   if(h>1){h=1;w=h*r}if(w>1){w=1;h=w/r}
@@ -667,7 +707,7 @@ function applyBorder(a,W,H){
   };
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
     const dx=Math.min(x,W-1-x),dy=Math.min(y,H-1-y),d=Math.min(dx,dy);if(d>=tot)continue;
-    const t=dy<=dx?x:y,i=y*W+x;
+    const t=dy<=dx?Math.round(Math.abs(x-(W-1)/2)):Math.round(Math.abs(y-(H-1)/2)),i=y*W+x;
     a[i]=d<g||d>=g+m?c1:pat(t,d-g);
   }
 }
@@ -676,17 +716,21 @@ function applyBorder(a,W,H){
 let dirty=1,timer=0;
 function invalidate(lv){dirty=Math.min(dirty,lv);$('#busy').hidden=false;clearTimeout(timer);timer=setTimeout(()=>requestAnimationFrame(()=>setTimeout(run,0)),60)}
 function run(){
+  const lv=dirty;dirty=99;
   try{
     const{W:nW,H:nH}=knotDims();
-    if(nW*nH>8e6){toast('شمار گره‌ها بیش از ۸ میلیون است؛ رج یا ابعاد را کم کنید.');$('#busy').hidden=true;dirty=99;return}
-    if(dirty<=1){
+    if(nW*nH>8e6){toast('شمار گره‌ها بیش از ۸ میلیون است؛ رج یا ابعاد را کم کنید.');$('#busy').hidden=true;return}
+    if(lv<=1){
       ensureRotated();W=nW;H=nH;
       const rw=rotated.width,rh=rotated.height,c=S.crop;
-      base=resample(rotated,c.x*rw,c.y*rh,c.w*rw,c.h*rh,W,H);
+      const tx=S.repeat.x,ty=S.repeat.y;
+      if(tx>1||ty>1){const tw=Math.ceil(W/tx),th=Math.ceil(H/ty),t=resample(rotated,c.x*rw,c.y*rh,c.w*rw,c.h*rh,tw,th);base=new Float32Array(W*H*3);
+        for(let y=0;y<H;y++){const cy=(y/th)|0;let iy=y%th;if(S.repeat.mirror&&cy&1)iy=th-1-iy;for(let x=0;x<W;x++){const cx=(x/tw)|0;let ix=x%tw;if(S.repeat.mirror&&cx&1)ix=tw-1-ix;const j=(y*W+x)*3,k=(iy*tw+ix)*3;base[j]=t[k];base[j+1]=t[k+1];base[j+2]=t[k+2]}}}
+      else base=resample(rotated,c.x*rw,c.y*rh,c.w*rw,c.h*rh,W,H);
       const key=W+'x'+H;
       if(key!==prevWH){prevWH=key;needFit=true}
     }
-    if(dirty<=2){
+    if(lv<=2){
       const a=S.adj;let f=new Float32Array(base);tone(f,a);
       if(a.median>0)f=median(f,W,H,a.median);
       if(a.kuwahara>0){if(W*H<=3.5e6)f=kuwahara(f,W,H,a.kuwahara);else toast('فیلتر کوواهارا برای این شمار گره خیلی سنگین است.')}
@@ -694,7 +738,7 @@ function run(){
       if(a.sharpen>0){const b=gauss(f,W,H,1);for(let i=0;i<f.length;i++)f[i]+=a.sharpen*(f[i]-b[i])}
       filt=f;
     }
-    if(dirty<=3){
+    if(lv<=3){
       let idx=quantize(filt,W,H);
       if(S.clean.despeckle>0)idx=despeckle(idx,W,H,S.clean.despeckle);
       if(S.clean.outline)idx=outline(idx,W,H);
@@ -702,9 +746,10 @@ function run(){
       if(S.border.on)applyBorder(idx,W,H);
       post=idx;
     }
-    if(dirty<=4)finalize();
+    if(lv<=4)finalize();
+    if(pruneZero&&lv<=3){pruneZero=false;const z=counts.map((n,i)=>n===0?i:-1).filter(i=>i>=0);if(z.length&&palette.length-z.length>=2)z.reverse().forEach(i=>removeColor(i))}
   }catch(e){console.error(e);toast('خطا در پردازش: '+e.message)}
-  dirty=99;$('#busy').hidden=true;
+  $('#busy').hidden=dirty>=99;
   if(needFit){fit();needFit=false}
   updateAll();
 }
@@ -724,7 +769,33 @@ function buildRug(){
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,p=P[grid[i]],n=1+(R()-0.5)*0.06,f=rowF[y]*n,j=i*4;d[j]=p[0]*f;d[j+1]=p[1]*f;d[j+2]=p[2]*f;d[j+3]=255}
   g.putImageData(im,0,0);
 }
-function computeCounts(){counts=new Array(palette.length).fill(0);if(!grid)return;for(let i=0;i<grid.length;i++)counts[grid[i]]++}
+function computeCounts(){counts=new Array(palette.length).fill(0);if(!grid)return;for(let i=0;i<grid.length;i++)counts[grid[i]]++;analyse()}
+let AN=null;
+function analyse(){
+  let runs=0,iso=0,lr=0,tb=0,maxRow=0;
+  for(let y=0;y<H;y++){let rr=0;const o=y*W,m=(H-1-y)*W;for(let x=0;x<W;x++){const i=o+x,k=grid[i];
+    if(x===0||grid[i-1]!==k)rr++;
+    if((x===0||grid[i-1]!==k)&&(x===W-1||grid[i+1]!==k)&&(y===0||grid[i-W]!==k)&&(y===H-1||grid[i+W]!==k))iso++;
+    if(grid[o+W-1-x]===k)lr++;if(grid[m+x]===k)tb++}runs+=rr;if(rr>maxRow)maxRow=rr}
+  const PL=palette.map(c=>lab(...hex2rgb(c.hex))),sim=[];
+  for(let a=0;a<palette.length;a++)for(let b=a+1;b<palette.length;b++){const d=dE(PL[a],PL[b]);if(d<9)sim.push([a,b,d])}
+  const N=W*H;AN={perRow:runs/H,maxRow,avgRun:N/runs,iso,isoP:iso/N*100,lr:lr/N*100,tb:tb/N*100,sim};
+}
+function renderAnalysis(){
+  if(!AN)return;const a=AN,lvl=a.avgRun>=8?['ok','آسان']:a.avgRun>=4?['mid','متوسط']:['hard','دشوار'];
+  const symTxt=a.lr>99.5&&a.tb>99.5?'کاملاً قرینه — چاپ یک‌چهارم کافی است':a.lr>99.5?'قرینهٔ چپ و راست — چاپ نیمه کافی است':a.tb>99.5?'قرینهٔ بالا و پایین':'نامتقارن — نقشهٔ کامل لازم است';
+  $('#analysis').innerHTML=`<dt>سختی بافت</dt><dd><span class="level ${lvl[0]}">${lvl[1]}</span></dd>
+   <dt>تعویض رنگ در هر رج (میانگین)</dt><dd>${nf(a.perRow,1)}</dd><dt>بیشترین تعویض در یک رج</dt><dd>${nf(a.maxRow)}</dd>
+   <dt>میانگین طول هر رشتهٔ هم‌رنگ</dt><dd>${nf(a.avgRun,1)} گره</dd>
+   <dt>گره‌های تک (بی‌همسایهٔ هم‌رنگ)</dt><dd>${nf(a.iso)} (${nf(a.isoP,2)}٪)</dd>
+   <dt>قرینگی چپ و راست</dt><dd>${nf(a.lr,1)}٪</dd><dt>قرینگی بالا و پایین</dt><dd>${nf(a.tb,1)}٪</dd><dt>نتیجه</dt><dd>${symTxt}</dd>`;
+  let h='';
+  if(a.isoP>0.5)h+=`<p class="note">${nf(a.iso)} گرهٔ تک در نقشه هست که بافتنشان سخت است و در فرش دیده نمی‌شوند. در زبانهٔ «پردازش»، «حذف گره‌های تک» را بالاتر ببرید.</p>`;
+  const rare=counts.filter(n=>n/(W*H)<0.005).length;
+  if(rare)h+=`<p class="note">${fa(rare)} رنگ کمتر از نیم درصد گره‌ها را دارد. می‌توانید با «حذف رنگ‌های کم‌کاربرد» کلاف‌های اضافه را کم کنید.</p>`;
+  if(a.sim.length)h+='<p class="hint">این رنگ‌ها در پشم تقریباً یکسان دیده می‌شوند؛ ادغامشان یک کلاف را کم می‌کند:</p>'+a.sim.map(([x,y,d])=>`<div class="warnrow"><i style="background:${palette[x].hex}"></i>${palette[x].fa}<i style="background:${palette[y].hex}"></i>${palette[y].fa}<span class="hint">ΔE ${nf(d,1)}</span><button class="btn" data-merge="${counts[x]<counts[y]?x:y}">ادغام</button></div>`).join('');
+  $('#simWarn').innerHTML=h;
+}
 
 /* ---------- palette building ---------- */
 function samplePixels(n){
@@ -757,13 +828,15 @@ function kmeans(n){
   return C.map(c=>{const hex=rgb2hex(...lab2rgb(...c)),nl=nearestLib(hex);return{hex,fa:'نزدیک به '+nl.fa,en:'≈ '+nl.en,id:'custom'}});
 }
 function sortByLum(p){return p.sort((a,b)=>relLum(a.hex)-relLum(b.hex))}
-function buildPalette(){
+let pruneZero=false;
+function buildPalette(){pruneZero=true;
   const pr=PRESETS.find(p=>p.id===S.preset),cands=pr.ids.map(id=>LIBM[id]);let p;
   if(S.method==='preset')p=cands.map(c=>({...c}));
   else if(S.method==='fitPreset')p=greedySubset(cands,S.count).map(c=>({...c}));
   else if(S.method==='fitLibrary')p=greedySubset(LIB,S.count).map(c=>({...c}));
   else p=kmeans(S.count);
   if(!p.length)p=cands.map(c=>({...c}));
+  if(p.length>32){p=greedySubset(p,32).map(c=>({...c}));toast('بیش از ۳۲ رنگ ممکن نیست؛ ۳۲ رنگ نزدیک‌تر به تصویر انتخاب شد.')}
   setPalette(sortByLum(p));
 }
 function setPalette(p){
@@ -804,7 +877,7 @@ function drawMapRegion(ctx,ox,oy,cw,ch,x0,y0,x1,y1,o){
     for(let y=y0;y<=y1;y++){if((H-y)%10===0)continue;const py=Math.round(oy+y*ch)+.25;ctx.moveTo(ox+x0*cw,py);ctx.lineTo(ox+x1*cw,py)}
     ctx.stroke();
   }
-  if(o.grid&&cw*10>=7){
+  if(o.grid&&cw*10>=24){
     ctx.lineWidth=o.bold||1.3;ctx.strokeStyle='rgba(10,12,24,.82)';ctx.beginPath();
     for(let x=Math.ceil(x0/10)*10;x<=x1;x+=10){const px=Math.round(ox+x*cw)+.5;ctx.moveTo(px,oy+y0*ch);ctx.lineTo(px,oy+y1*ch)}
     for(let y=y0;y<=y1;y++){if((H-y)%10)continue;const py=Math.round(oy+y*ch)+.5;ctx.moveTo(ox+x0*cw,py);ctx.lineTo(ox+x1*cw,py)}
@@ -867,7 +940,7 @@ function drawSource(ctx,vw,vh){
   ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(cx+cw/2,cy);ctx.lineTo(cx+cw/2,cy+ch);ctx.moveTo(cx,cy+ch/2);ctx.lineTo(cx+cw,cy+ch/2);ctx.stroke();ctx.setLineDash([]);
   ctx.fillStyle='#fff';for(const[hx,hy]of[[cx,cy],[cx+cw,cy],[cx,cy+ch],[cx+cw,cy+ch]]){ctx.fillRect(hx-6,hy-6,12,12);ctx.strokeStyle='#1A2036';ctx.strokeRect(hx-6,hy-6,12,12)}
   const{W:kw,H:kh}=knotDims();ctx.font='12px Vazirmatn,Tahoma,sans-serif';ctx.textAlign='center';ctx.textBaseline='bottom';
-  const lbl=`${fa(kw)} × ${fa(kh)} گره`;const tw=ctx.measureText(lbl).width+16;ctx.fillStyle='rgba(10,12,20,.75)';ctx.fillRect(cx+cw/2-tw/2,cy-26,tw,22);ctx.fillStyle='#fff';ctx.fillText(lbl,cx+cw/2,cy-8);
+  const lbl=(S.repeat.x>1||S.repeat.y>1)?`یک واحد تکرار: ${fa(Math.ceil(kw/S.repeat.x))} × ${fa(Math.ceil(kh/S.repeat.y))} گره`:`${fa(kw)} × ${fa(kh)} گره`;const tw=ctx.measureText(lbl).width+16;ctx.fillStyle='rgba(10,12,20,.75)';ctx.fillRect(cx+cw/2-tw/2,cy-26,tw,22);ctx.fillStyle='#fff';ctx.fillText(lbl,cx+cw/2,cy-8);
 }
 let drawQ=false;function redraw(){if(drawQ)return;drawQ=true;requestAnimationFrame(()=>{drawQ=false;drawStage()})}
 function fit(){
@@ -918,7 +991,7 @@ function cropMove(p){
   const n=toNorm(p);cropChanged=true;
   if(drag.mode==='move'){const c=drag.c;S.crop={...c,x:Math.min(1-c.w,Math.max(0,c.x+n.x-drag.sx)),y:Math.min(1-c.h,Math.max(0,c.y+n.y-drag.sy))}}
   else{let px=Math.min(1,Math.max(0,n.x)),py=Math.min(1,Math.max(0,n.y));let w=Math.abs(px-drag.fx),h=Math.abs(py-drag.fy);
-    if(S.cropLock){const r=(S.widthCm/S.lengthCm)*(rotated.height/rotated.width);if(w/h>r)w=h*r;else h=w/r;
+    if(S.cropLock){const r=cropRatio();if(w/h>r)w=h*r;else h=w/r;
       const mx=px<drag.fx?drag.fx:1-drag.fx,my=py<drag.fy?drag.fy:1-drag.fy;if(w>mx){w=mx;h=w/r}if(h>my){h=my;w=h*r}}
     w=Math.max(0.02,w);h=Math.max(0.02,h);
     S.crop={x:px<drag.fx?drag.fx-w:drag.fx,y:py<drag.fy?drag.fy-h:drag.fy,w,h}}
@@ -933,20 +1006,20 @@ window.addEventListener('keyup',e=>{if(e.code==='Space')space=false});
 
 /* ---------- UI rendering ---------- */
 function renderPresets(){
-  $('#presets').innerHTML=PRESETS.map(p=>`<button class="preset" data-id="${p.id}" aria-pressed="${p.id===S.preset}"><b>${p.fa}</b><small>${p.note} · ${fa(p.ids.length)} رنگ</small><span class="strip">${p.ids.map(id=>`<i style="background:${LIBM[id].hex}"></i>`).join('')}</span></button>`).join('');
+  $('#presets').innerHTML=PRESETS.map(p=>`<button class="preset" data-id="${p.id}" aria-pressed="${p.id===S.preset}"><b>${p.fa}</b><small>${p.note}، ${fa(p.ids.length)} رنگ</small><span class="strip">${p.ids.map(id=>`<i style="background:${LIBM[id].hex}"></i>`).join('')}</span></button>`).join('');
 }
 function renderPalette(){
   const tot=grid?grid.length:1;
   $('#pal').innerHTML=palette.map((c,i)=>`<div class="pal-row" data-i="${i}">
    <span class="sw" style="--c:${c.hex};color:${relLum(c.hex)>0.28?'#000':'#fff'};display:flex;align-items:center;justify-content:center;cursor:default" title="کد رنگ">${CODES[i]}</span>
    <span class="sym">${SYMS[i%SYMS.length]}</span>
-   <div class="nm"><input data-act="name" value="${c.fa.replace(/"/g,'&quot;')}" aria-label="نام رنگ"><small>${c.en||''} · ${c.hex}</small></div>
+   <div class="nm"><input data-act="name" value="${c.fa.replace(/"/g,'&quot;')}" aria-label="نام رنگ"><small>${c.en||''} / ${c.hex}</small></div>
    <span class="pct">${counts[i]!=null?nf(counts[i]/tot*100,1)+'٪':''}</span>
    <input type="color" class="pick" data-act="color" value="${c.hex}" aria-label="تغییر رنگ">
    <button class="x" data-act="del" aria-label="حذف رنگ">×</button></div>`).join('');
 }
 function renderColorSelects(){
-  const opts=sel=>palette.map((c,i)=>`<option value="${i}"${i===sel?' selected':''}>${CODES[i]} · ${c.fa}</option>`).join('');
+  const opts=sel=>palette.map((c,i)=>`<option value="${i}"${i===sel?' selected':''}>${CODES[i]}، ${c.fa}</option>`).join('');
   $('#bc1').innerHTML=opts(S.border.c1);$('#bc2').innerHTML=opts(S.border.c2);$('#bc3').innerHTML=opts(S.border.c3);
   $('#outlineColor').innerHTML=`<option value="-1"${S.clean.outlineColor<0?' selected':''}>تیره‌ترین رنگ پالت</option>`+opts(S.clean.outlineColor);
 }
@@ -954,14 +1027,14 @@ function renderLib(){$('#lib').innerHTML=LIB.map(c=>`<button data-id="${c.id}"><
 function specs(){
   const{W,H}=knotDims(),hpi=S.raj/S.gereh*2.54,vpi=S.raj*S.rowRatio/S.gereh*2.54,area=S.widthCm*S.lengthCm/1e4;
   return{W,H,tot:W*H,kpsi:hpi*vpi,kdm:(S.raj/S.gereh*10)*(S.raj*S.rowRatio/S.gereh*10),kw:S.gereh/S.raj*10,kh:S.gereh/(S.raj*S.rowRatio)*10,area,
-    days:W*H/(S.kpd*S.weavers),kg:area*S.kgm2};
+    days:W*H/(S.kpd*S.weavers),kg:area*S.kgm2,labour:W*H/1000*S.wage,wool:area*S.kgm2*S.woolPrice};
 }
 function updateSpecs(){
   const s=specs();
   $('#specs').innerHTML=`<dt>گره در عرض × رج در طول</dt><dd>${fa(s.W)} × ${fa(s.H)}</dd><dt>کل گره‌ها</dt><dd>${nf(s.tot)}</dd>
    <dt>گره در دسی‌مترمربع</dt><dd>${nf(s.kdm)}</dd><dt>گره در اینچ مربع (KPSI)</dt><dd>${nf(s.kpsi)}</dd>
    <dt>اندازهٔ هر گره</dt><dd>${nf(s.kw,2)} × ${nf(s.kh,2)} میلی‌متر</dd><dt>رده</dt><dd>${grade(S.raj)}</dd>`;
-  $('#estimate').innerHTML=`<dt>روز کاری بافت</dt><dd>${nf(s.days)}</dd><dt>تقریباً</dt><dd>${nf(s.days/25,1)} ماه</dd><dt>مساحت</dt><dd>${nf(s.area,2)} مترمربع</dd><dt>پشم پرز</dt><dd>${nf(s.kg,1)} کیلوگرم</dd>`;
+  $('#estimate').innerHTML=`<dt>روز کاری بافت</dt><dd>${nf(s.days)}</dd><dt>تقریباً</dt><dd>${nf(s.days/25,1)} ماه</dd><dt>مساحت</dt><dd>${nf(s.area,2)} مترمربع</dd><dt>پشم پرز</dt><dd>${nf(s.kg,1)} کیلوگرم</dd>`+(S.wage||S.woolPrice?`<dt>هزینهٔ دستمزد</dt><dd>${nf(s.labour)}</dd><dt>هزینهٔ پشم</dt><dd>${nf(s.wool)}</dd><dt>جمع هزینه</dt><dd>${nf(s.labour+s.wool)}</dd>`:'');
 }
 function grade(r){return r<=25?'درشت‌باف عشایری':r<=35?'متوسط (هریس، بیجار)':r<=45?'ریزبافت (تبریز، کاشان)':r<=60?'خیلی ریز (اصفهان)':'بسیار ریز (نائین، قم ابریشمی)'}
 function updateHeader(){
@@ -972,28 +1045,28 @@ function updateStatus(){
   const parts=[];
   if(S.view==='source'){parts.push('کادر برش را تنظیم کنید؛ نقشه پس از رها کردن به‌روز می‌شود.')}
   else{
-    if(hover){const k=grid[hover.y*W+hover.x];parts.push(`رج ${fa(H-hover.y)} · گره ${fa(colLabel(hover.x))} · ${CODES[k]} ${palette[k].fa}`)}
+    if(hover){const k=grid[hover.y*W+hover.x];parts.push(`رج ${fa(H-hover.y)}، گره ${fa(colLabel(hover.x))}، ${CODES[k]} ${palette[k].fa}`)}
     parts.push(`بزرگ‌نمایی ${nf(cam.cell,1)} پیکسل برای هر گره`);
     if(cam.cell<5&&S.view==='map')parts.push('برای دیدن شبکه بزرگ‌نمایی کنید');
   }
   $('#status').innerHTML=parts.map(p=>`<span>${p}</span>`).join('');
 }
 function updateSheetInfo(){
-  const L=sheetLayout();$('#sheetInfo').textContent=L?`${fa(L.pages)} برگه (${fa(L.cols)} × ${fa(L.rows)}) · هر برگه ${fa(L.kx)} × ${fa(L.ky)} گره · به‌علاوهٔ برگهٔ راهنمای رنگ`:'';
+  const L=sheetLayout();$('#sheetInfo').textContent=L?`${fa(L.pages)} برگه (${fa(L.cols)} × ${fa(L.rows)})، هر برگه ${fa(L.kx)} × ${fa(L.ky)} گره، به‌علاوهٔ برگهٔ راهنمای رنگ`:'';
 }
-function updateAll(){markDirty();renderPalette();updateSpecs();updateHeader();updateStatus();updateSheetInfo();if(rowOn)renderRow();redraw()}
+function updateAll(){markDirty();renderPalette();renderAnalysis();updateSpecs();updateHeader();updateStatus();updateSheetInfo();if(rowOn)renderRow();redraw()}
 function syncControls(){
   $('#widthCm').value=S.widthCm;$('#lengthCm').value=S.lengthCm;$('#raj').value=S.raj;$('#gereh').value=S.gereh;
-  $('#rowRatio').value=S.rowRatio;$('#rowRatioOut').textContent=S.rowRatio.toFixed(2);
-  $('#kpd').value=S.kpd;$('#weavers').value=S.weavers;$('#kgm2').value=S.kgm2;
-  $('#count').value=S.count;$('#countOut').textContent=S.count;$('#dist').value=S.quant.dist;$('#dither').value=S.quant.dither;
-  $('#ditherStrength').value=S.quant.strength;$('#ditherStrengthOut').textContent=S.quant.strength.toFixed(2);
-  $('#fine').value=S.fine;$('#fineOut').textContent=S.fine+'°';$('#cropLock').checked=S.cropLock;$('#bPattern').value=S.border.pattern;
+  $('#rowRatio').value=S.rowRatio;$('#rowRatioOut').textContent=fa(S.rowRatio.toFixed(2));
+  $('#kpd').value=S.kpd;$('#weavers').value=S.weavers;$('#kgm2').value=S.kgm2;$('#wage').value=S.wage||'';$('#woolPrice').value=S.woolPrice||'';
+  $('#count').value=S.count;$('#countOut').textContent=fa(S.count);$('#dist').value=S.quant.dist;$('#dither').value=S.quant.dither;
+  $('#ditherStrength').value=S.quant.strength;$('#ditherStrengthOut').textContent=fa(S.quant.strength.toFixed(2));
+  $('#fine').value=S.fine;$('#fineOut').textContent=fa(S.fine)+'°';$('#cropLock').checked=S.cropLock;$('#bPattern').value=S.border.pattern;
   $$('[data-bind]').forEach(el=>{const v=getPath(el.dataset.bind);if(el.type==='checkbox')el.checked=!!v;else{el.value=v;const o=el.parentElement.querySelector('output');if(o)o.textContent=fmtOut(el.dataset.bind,v)}});
   setSeg('#method',S.method);setSeg('#sym',S.sym);setSeg('#viewSeg',S.view);
   $('#countField').hidden=S.method==='preset';methodHint();renderPresets();
 }
-function fmtOut(k,v){if(k==='adj.median')return['خاموش','۳×۳','۵×۵'][v];if(k==='clean.despeckle')return['خاموش','کم','متوسط','زیاد'][v];if(k.startsWith('border.'))return fa(v)+' گره';return String(v)}
+function fmtOut(k,v){if(k.startsWith('repeat.'))return fa(v)+'×';if(k==='adj.median')return['خاموش','۳×۳','۵×۵'][v];if(k==='clean.despeckle')return['خاموش','کم','متوسط','زیاد'][v];if(k.startsWith('border.'))return fa(v)+' گره';return fa(v)}
 function getPath(p){return p.split('.').reduce((o,k)=>o[k],S)}
 function setPath(p,v){const ks=p.split('.'),l=ks.pop();ks.reduce((o,k)=>o[k],S)[l]=v}
 function setSeg(sel,v){$$(sel+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}
@@ -1027,25 +1100,206 @@ function setSource(img,name){
 function loadFile(f){
   if(!f||!f.type.startsWith('image/')){toast('این فایل تصویر نیست.');return}
   const url=URL.createObjectURL(f),img=new Image();
-  img.onload=()=>{curProj={id:null,name:''};$('#projName').value=f.name.replace(/\.[^.]+$/,'');renderProjects();setSource(img,f.name);URL.revokeObjectURL(url);dirty=1;run();buildPalette();setView('source');toast('تصویر بارگذاری شد؛ کادر برش را تنظیم کنید.')};
+  img.onload=()=>{curProj={id:null,name:''};S.sampleId='';S.repeat={x:1,y:1,mirror:true};S.sym='none';$('#projName').value=f.name.replace(/\.[^.]+$/,'');renderProjects();setSource(img,f.name);URL.revokeObjectURL(url);syncControls();dirty=1;run();buildPalette();renderGallery();setView('source');toast('تصویر بارگذاری شد؛ کادر برش را تنظیم کنید.')};
   img.onerror=()=>toast('خواندن تصویر ممکن نشد.');img.src=url;
 }
-function makeSample(){
-  const c=document.createElement('canvas');c.width=900;c.height=1350;const g=c.getContext('2d');
+/* ---------- sample library (procedural traditional designs) ---------- */
+const Kc=id=>LIBM[id].hex;
+const SD={
+  lobed(g,x,y,R,n,amp,sy,fill,stroke,lw,sx=1){g.beginPath();for(let a=0;a<=Math.PI*2+1e-3;a+=0.01){const r=R*(1-amp*Math.pow(Math.abs(Math.sin(n*a/2)),0.6));const px=x+r*Math.sin(a)*sx,py=y-r*Math.cos(a)*sy;a?g.lineTo(px,py):g.moveTo(px,py)}g.closePath();if(fill){g.fillStyle=fill;g.fill()}if(stroke){g.strokeStyle=stroke;g.lineWidth=lw;g.stroke()}},
+  ros(g,x,y,r,n,c1,c2){SD.lobed(g,x,y,r,n,0.35,1,c1);g.beginPath();g.arc(x,y,r*0.34,0,7);g.fillStyle=c2;g.fill()},
+  leaf(g,x,y,l,wd,a,c){g.save();g.translate(x,y);g.rotate(a);g.beginPath();g.moveTo(-l,0);g.quadraticCurveTo(0,-wd*2,l,0);g.quadraticCurveTo(0,wd*2,-l,0);g.fillStyle=c;g.fill();g.restore()},
+  fan(g,R,n,c){g.beginPath();g.moveTo(-R*0.38,R*0.32);for(let k=0;k<=80;k++){const u=k/80*Math.PI,t=Math.PI+u,r=R*(0.8+0.2*Math.abs(Math.sin(n*u)));g.lineTo(r*Math.cos(t),r*Math.sin(t))}g.lineTo(R*0.38,R*0.32);g.closePath();g.fillStyle=c;g.fill()},
+  palmette(g,x,y,s,a,c1,c2,c3){g.save();g.translate(x,y);g.rotate(a);SD.fan(g,s,7,c1);SD.fan(g,s*0.66,5,c2);g.beginPath();g.ellipse(0,-s*0.12,s*0.2,s*0.3,0,0,7);g.fillStyle=c3;g.fill();g.beginPath();g.ellipse(0,s*0.3,s*0.32,s*0.13,0,0,7);g.fillStyle=c2;g.fill();g.restore()},
+  BOTEH:null,
+  boteh(g,x,y,s,a,c1,c2,c3,flip){if(!SD.BOTEH)SD.BOTEH=new Path2D('M0 60 C-55 60 -62 0 -30 -35 C-10 -58 22 -72 18 -98 C46 -72 56 -22 46 15 C40 45 25 60 0 60Z');
+    g.save();g.translate(x,y);g.rotate(a);g.scale((flip?-1:1)*s/100,s/100);g.fillStyle=c1;g.fill(SD.BOTEH);
+    g.save();g.translate(4,14);g.scale(0.62,0.62);g.fillStyle=c2;g.fill(SD.BOTEH);g.restore();
+    g.fillStyle=c3;for(const[px,py]of[[-6,30],[8,18],[-14,10],[2,2],[-6,-10]]){g.beginPath();g.arc(px,py,5,0,7);g.fill()}g.restore()},
+  stepD(g,cx,cy,rx,ry,st,c){g.fillStyle=c;for(let y=cy-ry;y<cy+ry;y+=st){const yc=y+st/2,hw=Math.round(rx*(1-Math.abs(yc-cy)/ry)/st)*st;if(hw>0)g.fillRect(cx-hw,y,hw*2,st+0.6)}},
+  oct(g,x,y,rx,ry){const k=0.42;g.beginPath();g.moveTo(x-rx*k,y-ry);g.lineTo(x+rx*k,y-ry);g.lineTo(x+rx,y-ry*k);g.lineTo(x+rx,y+ry*k);g.lineTo(x+rx*k,y+ry);g.lineTo(x-rx*k,y+ry);g.lineTo(x-rx,y+ry*k);g.lineTo(x-rx,y-ry*k);g.closePath()},
+  gul(g,x,y,rx,ry,c1,c2,c3,c4){g.save();SD.oct(g,x,y,rx,ry);g.fillStyle=c4;g.fill();SD.oct(g,x,y,rx*0.9,ry*0.9);g.clip();
+    g.fillStyle=c1;g.fillRect(x-rx,y-ry,rx,ry);g.fillRect(x,y,rx,ry);g.fillStyle=c2;g.fillRect(x,y-ry,rx,ry);g.fillRect(x-rx,y,rx,ry);g.restore();
+    g.strokeStyle=c4;g.lineWidth=rx*0.07;g.beginPath();g.moveTo(x-rx*0.9,y);g.lineTo(x+rx*0.9,y);g.moveTo(x,y-ry*0.9);g.lineTo(x,y+ry*0.9);g.stroke();
+    SD.oct(g,x,y,rx*0.36,ry*0.36);g.fillStyle=c3;g.fill();g.strokeStyle=c4;g.lineWidth=rx*0.05;g.stroke();
+    g.fillStyle=c3;for(const[dx,dy]of[[-1,-1],[1,-1],[-1,1],[1,1]]){g.fillRect(x+dx*rx*0.55-rx*0.08,y+dy*ry*0.55-ry*0.08,rx*0.16,ry*0.16)}},
+  star8(g,x,y,r,c){g.fillStyle=c;g.save();g.translate(x,y);g.fillRect(-r*0.7,-r*0.7,r*1.4,r*1.4);g.rotate(Math.PI/4);g.fillRect(-r*0.7,-r*0.7,r*1.4,r*1.4);g.restore()},
+  tree(g,x,y,len,ang,depth,lw,trunk,leafC,flowerC,R){
+    const x2=x+len*Math.sin(ang),y2=y-len*Math.cos(ang);g.strokeStyle=trunk;g.lineWidth=lw;g.lineCap='round';g.beginPath();g.moveTo(x,y);g.lineTo(x2,y2);g.stroke();
+    if(depth<=0){SD.leaf(g,x2,y2,len*0.45,len*0.18,ang-Math.PI/2,leafC);if(flowerC&&R()<0.5)SD.ros(g,x2,y2,len*0.28,6,flowerC,trunk);return}
+    for(const s of[-1,1])SD.tree(g,x2,y2,len*0.74,ang+s*(0.42+R()*0.18),depth-1,lw*0.68,trunk,leafC,flowerC,R);
+    if(depth>1)SD.tree(g,x2,y2,len*0.6,ang+(R()-0.5)*0.2,depth-2,lw*0.6,trunk,leafC,flowerC,R);
+    SD.leaf(g,(x+x2)/2,(y+y2)/2,len*0.3,len*0.1,ang+Math.PI/3,leafC);
+  },
+  bird(g,x,y,s,c,c2,flip){g.save();g.translate(x,y);g.scale(flip?-1:1,1);g.fillStyle=c;g.beginPath();g.ellipse(0,0,s,s*0.55,0,0,7);g.fill();g.beginPath();g.arc(s*0.95,-s*0.45,s*0.38,0,7);g.fill();
+    g.beginPath();g.moveTo(-s*0.8,-s*0.1);g.lineTo(-s*1.9,-s*0.6);g.lineTo(-s*1.6,s*0.3);g.closePath();g.fill();g.fillStyle=c2;g.beginPath();g.moveTo(s*1.25,-s*0.5);g.lineTo(s*1.7,-s*0.38);g.lineTo(s*1.25,-s*0.28);g.fill();
+    g.beginPath();g.ellipse(-s*0.1,-s*0.05,s*0.55,s*0.25,-0.3,0,7);g.fill();g.restore()},
+  arch(g,x0,y0,x1,y1,c){const mx=(x0+x1)/2,w=x1-x0;g.beginPath();g.moveTo(x0,y1);g.lineTo(x0,y0+w*0.45);g.quadraticCurveTo(x0+w*0.02,y0+w*0.05,mx,y0-w*0.14);g.quadraticCurveTo(x1-w*0.02,y0+w*0.05,x1,y0+w*0.45);g.lineTo(x1,y1);g.closePath();g.fillStyle=c;g.fill()},
+  vine(g,x0,y0,x1,y1,amp,waves,c,lw){g.strokeStyle=c;g.lineWidth=lw;g.lineCap='round';g.beginPath();const dx=x1-x0,dy=y1-y0,L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;
+    for(let k=0;k<=120;k++){const t=k/120,o=amp*Math.sin(t*Math.PI*2*waves),px=x0+dx*t+nx*o,py=y0+dy*t+ny*o;k?g.lineTo(px,py):g.moveTo(px,py)}g.stroke()},
+  quad(g,w,h,fn){for(const[sx,sy]of[[1,1],[-1,1],[1,-1],[-1,-1]]){g.save();g.translate(w/2,h/2);g.scale(sx,sy);g.translate(-w/2,-h/2);fn();g.restore()}},
+  cypress(g,x,y,s,c,c2){g.fillStyle=c;g.beginPath();g.moveTo(x,y-s);g.bezierCurveTo(x+s*0.32,y-s*0.5,x+s*0.3,y+s*0.3,x,y+s*0.45);g.bezierCurveTo(x-s*0.3,y+s*0.3,x-s*0.32,y-s*0.5,x,y-s);g.fill();g.fillStyle=c2;g.fillRect(x-s*0.04,y+s*0.4,s*0.08,s*0.18)}
+};
+function drawKashanLegacy(g,w,h){g.save();g.scale(w/900,h/1350);
   const gr=g.createRadialGradient(450,675,80,450,675,820);gr.addColorStop(0,'#9d2523');gr.addColorStop(1,'#7a1818');g.fillStyle=gr;g.fillRect(0,0,900,1350);
   g.strokeStyle='#c49a48';g.lineWidth=7;
   for(let i=0;i<8;i++){g.beginPath();for(let y=0;y<=1350;y+=8){const x=i*130-10+38*Math.sin(y/85+i*1.7);y?g.lineTo(x,y):g.moveTo(x,y)}g.stroke()}
-  const lobed=(x,y,R,n,amp,sy,fill,stroke,lw)=>{g.beginPath();for(let a=0;a<=Math.PI*2+0.001;a+=0.01){const r=R*(1-amp*Math.pow(Math.abs(Math.sin(n*a/2)),0.6));const px=x+r*Math.sin(a),py=y-r*Math.cos(a)*sy;a?g.lineTo(px,py):g.moveTo(px,py)}g.closePath();g.fillStyle=fill;g.fill();if(stroke){g.strokeStyle=stroke;g.lineWidth=lw;g.stroke()}};
-  const ros=(x,y,r,n,c1,c2)=>{lobed(x,y,r,n,0.35,1,c1);g.beginPath();g.arc(x,y,r*0.32,0,7);g.fillStyle=c2;g.fill()};
+  const L=(x,y,R,n,a,sy,f,s,lw)=>SD.lobed(g,x,y,R,n,a,sy,f,s,lw),ros=(x,y,r,n,c1,c2)=>{SD.lobed(g,x,y,r,n,0.35,1,c1);g.beginPath();g.arc(x,y,r*0.32,0,7);g.fillStyle=c2;g.fill()};
   const leaf=(x,y,a,c)=>{g.save();g.translate(x,y);g.rotate(a);g.beginPath();g.ellipse(0,0,24,9,0,0,7);g.fillStyle=c;g.fill();g.restore()};
   for(let r=0,y=50;y<1350;y+=125,r++)for(let x=r%2?60:125;x<900;x+=130){leaf(x-26,y+14,0.6,'#3d7c5d');leaf(x+26,y-14,0.6,'#3d7c5d');ros(x,y,24,8,'#eadfc6','#2c4c8c')}
-  for(const[x,y]of[[0,0],[900,0],[0,1350],[900,1350]]){lobed(x,y,250,10,0.16,1,'#1d2544','#eadfc6',8);lobed(x,y,165,8,0.2,1,'#eadfc6');ros(x,y,70,8,'#8c1c1e','#c49a48')}
-  for(const dy of[-430,430]){lobed(450,675+dy,80,8,0.25,1.3,'#1d2544','#eadfc6',6);ros(450,675+dy,30,6,'#c49a48','#8c1c1e')}
-  lobed(450,675,300,16,0.13,1.3,'#1d2544','#eadfc6',10);lobed(450,675,215,12,0.16,1.3,'#eadfc6');lobed(450,675,140,8,0.2,1.3,'#8c1c1e','#3f6eab',6);
+  for(const[x,y]of[[0,0],[900,0],[0,1350],[900,1350]]){L(x,y,250,10,0.16,1,'#1d2544','#eadfc6',8);L(x,y,165,8,0.2,1,'#eadfc6');ros(x,y,70,8,'#8c1c1e','#c49a48')}
+  for(const dy of[-430,430]){L(450,675+dy,80,8,0.25,1.3,'#1d2544','#eadfc6',6);ros(450,675+dy,30,6,'#c49a48','#8c1c1e')}
+  L(450,675,300,16,0.13,1.3,'#1d2544','#eadfc6',10);L(450,675,215,12,0.16,1.3,'#eadfc6');L(450,675,140,8,0.2,1.3,'#8c1c1e','#3f6eab',6);
   ros(450,675,62,8,'#c49a48','#1d2544');for(let k=0;k<8;k++){const a=k*Math.PI/4;ros(450+102*Math.sin(a),675-130*Math.cos(a),18,6,'#3f6eab','#eadfc6')}
-  const d=g.getImageData(0,0,900,1350),R=rng(3);for(let i=0;i<d.data.length;i+=4){const n=(R()-0.5)*26;d.data[i]+=n;d.data[i+1]+=n;d.data[i+2]+=n}g.putImageData(d,0,0);
-  return c;
+  g.restore();
 }
+const SAMPLES=[
+ {id:'kashan',fa:'لچک‌ترنج کاشان',region:'کاشان',type:'لچک‌ترنج',w:100,l:150,raj:30,preset:'kashan',count:8,sym:'none',border:{p:'zigzag',g:0.012,m:0.05,c:['sormei','kerem','laki']},draw:drawKashanLegacy},
+ {id:'tabriz',fa:'ترنج گرد تبریز',region:'تبریز',type:'لچک‌ترنج',w:150,l:225,raj:40,preset:'tabriz',count:10,sym:'quad',border:{p:'rosette',g:0.01,m:0.06,c:['sormei','laki','kerem']},draw(g,w,h){
+   g.fillStyle=Kc('kerem');g.fillRect(0,0,w,h);const u=w/100,R=rng(21);
+   for(let i=0;i<9;i++)SD.vine(g,i*w/8,0,i*w/8,h,3*u,5,Kc('shotori'),0.5*u);
+   for(let y=6*u;y<h;y+=11*u)for(let x=(Math.round(y/u)%2?4:10)*u;x<w;x+=12*u){SD.leaf(g,x-2.5*u,y+1.5*u,2.4*u,0.8*u,0.7,Kc('yashmi'));SD.palmette(g,x,y,2.6*u,R()<0.5?0:Math.PI,Kc('laki'),Kc('golbahi'),Kc('sormei'))}
+   SD.quad(g,w,h,()=>{SD.lobed(g,0,0,30*u,10,0.14,1,Kc('sormei'),Kc('kerem'),0.8*u);SD.lobed(g,0,0,20*u,8,0.18,1,Kc('laki'));SD.ros(g,0,0,8*u,8,Kc('talayi'),Kc('sormei'));
+     SD.lobed(g,w/2,h/2-35*u,7*u,8,0.25,1.3,Kc('laki'),Kc('sormei'),0.6*u)});
+   SD.lobed(g,w/2,h/2,28*u,16,0.12,1,Kc('laki'),Kc('sormei'),1.2*u);SD.lobed(g,w/2,h/2,20*u,12,0.15,1,Kc('kerem'));SD.lobed(g,w/2,h/2,13*u,8,0.2,1,Kc('lajevardi'),Kc('talayi'),0.6*u);
+   SD.ros(g,w/2,h/2,6*u,8,Kc('talayi'),Kc('laki'));for(let k=0;k<8;k++){const a=k*Math.PI/4;SD.palmette(g,w/2+16.5*u*Math.sin(a),h/2-16.5*u*Math.cos(a),2.4*u,a,Kc('laki'),Kc('golbahi'),Kc('sormei'))}}},
+ {id:'isfahan',fa:'شاه‌عباسی اصفهان',region:'اصفهان',type:'شاه‌عباسی',w:150,l:225,raj:50,gereh:6.5,preset:'isfahan',count:10,sym:'quad',border:{p:'rosette',g:0.01,m:0.06,c:['lajevardi','laki','kerem']},draw(g,w,h){
+   g.fillStyle=Kc('kerem');g.fillRect(0,0,w,h);const u=w/100;
+   g.strokeStyle=Kc('lajevardi');g.lineWidth=0.7*u;
+   for(let y=0;y<h+20*u;y+=20*u)for(let x=0;x<w+20*u;x+=20*u){g.beginPath();g.arc(x,y,10*u,0.2,Math.PI*1.3);g.stroke();g.beginPath();g.arc(x+10*u,y+10*u,10*u,Math.PI*1.2,Math.PI*2.3);g.stroke()}
+   for(let y=0,r=0;y<h+10*u;y+=10*u,r++)for(let x=r%2?10*u:0;x<w+10*u;x+=20*u){const a=((x/u+y/u)/10%4)*Math.PI/2;
+     if((r+Math.round(x/u/20))%2)SD.palmette(g,x,y,4.2*u,a,Kc('laki'),Kc('golbahi'),Kc('lajevardi'));else{SD.ros(g,x,y,2.6*u,8,Kc('firuzei'),Kc('laki'));SD.leaf(g,x+3*u,y-2*u,2.4*u,0.7*u,-0.6,Kc('sabz'))}}
+   SD.lobed(g,w/2,h/2,24*u,12,0.16,1.35,Kc('lajevardi'),Kc('kerem'),0.9*u);SD.lobed(g,w/2,h/2,16*u,8,0.2,1.35,Kc('laki'));
+   for(let k=0;k<4;k++)SD.palmette(g,w/2+9*u*Math.sin(k*Math.PI/2),h/2-12*u*Math.cos(k*Math.PI/2),3.5*u,k*Math.PI/2,Kc('kerem'),Kc('firuzei'),Kc('lajevardi'));SD.ros(g,w/2,h/2,4.5*u,8,Kc('talayi'),Kc('lajevardi'));
+   SD.quad(g,w,h,()=>{SD.lobed(g,0,0,26*u,10,0.15,1,Kc('lajevardi'),Kc('kerem'),0.8*u);SD.palmette(g,7*u,7*u,5*u,Math.PI*0.75,Kc('laki'),Kc('golbahi'),Kc('kerem'))})}},
+ {id:'nain',fa:'ترنج‌دار نائین',region:'نائین',type:'لچک‌ترنج',w:130,l:200,raj:65,gereh:6.5,preset:'nain',count:7,sym:'quad',border:{p:'diagonal',g:0.01,m:0.05,c:['sormei','kerem','abi']},draw(g,w,h){
+   g.fillStyle=Kc('kerem');g.fillRect(0,0,w,h);const u=w/100;
+   for(let i=-2;i<12;i++)SD.vine(g,i*w/9,0,i*w/9+20*u,h,2.5*u,4,Kc('noqrei'),0.5*u);
+   for(let y=5*u;y<h;y+=9*u)for(let x=(Math.round(y/u)%2?3:7.5)*u;x<w;x+=9*u){SD.ros(g,x,y,1.8*u,6,Kc('asemani'),Kc('sormei'));SD.leaf(g,x+2.4*u,y+1.2*u,1.6*u,0.5*u,0.5,Kc('noqrei'))}
+   SD.lobed(g,w/2,h/2,26*u,16,0.14,1.3,Kc('sormei'),Kc('asemani'),0.6*u);SD.lobed(g,w/2,h/2,19*u,12,0.18,1.3,Kc('kerem'));SD.lobed(g,w/2,h/2,12*u,8,0.2,1.3,Kc('abi'));SD.ros(g,w/2,h/2,5*u,8,Kc('kerem'),Kc('sormei'));
+   SD.quad(g,w,h,()=>{SD.lobed(g,0,0,24*u,12,0.14,1,Kc('sormei'),Kc('asemani'),0.6*u);SD.lobed(g,0,0,16*u,8,0.18,1,Kc('abi'));SD.lobed(g,w/2,h/2-36*u,6*u,8,0.25,1.3,Kc('sormei'))})}},
+ {id:'kerman',fa:'گل‌فرنگ کرمان',region:'کرمان',type:'گلدار',w:150,l:225,raj:40,preset:'kerman',count:12,sym:'quad',border:{p:'rosette',g:0.01,m:0.07,c:['qahvei','golbahi','nokhodi']},draw(g,w,h){
+   g.fillStyle=Kc('nokhodi');g.fillRect(0,0,w,h);const u=w/100;
+   const bouquet=(x,y,s,a=0)=>{g.save();g.translate(x,y);g.rotate(a);for(let k=0;k<7;k++){const t=-Math.PI/2+(k-3)*0.4;SD.leaf(g,Math.cos(t)*s*1.15,Math.sin(t)*s*1.15,s*0.75,s*0.24,t,Kc(k%2?'yashmi':'pestei'))}
+     for(let k=0;k<5;k++){const t=-Math.PI/2+(k-2)*0.55,d=k===2?s*0.35:s*0.85;SD.ros(g,Math.cos(t)*d,Math.sin(t)*d,s*(k===2?0.55:0.38),8,Kc(['golbahi','surati','yasi','golbahi','surati'][k]),Kc(k===2?'laki':'talayi'))}g.restore()};
+   for(let i=0;i<10;i++)SD.vine(g,i*w/9,0,i*w/9,h,2.6*u,6,Kc('pestei'),0.45*u);
+   for(let y=4*u,r=0;y<h;y+=7*u,r++)for(let x=(r%2?3:6.5)*u;x<w;x+=7*u){SD.ros(g,x,y,1.3*u,6,Kc(['golbahi','asemani','surati','yasi'][(r+Math.round(x/u))%4]),Kc('talayi'));SD.leaf(g,x+1.8*u,y+1*u,1.2*u,0.4*u,0.5,Kc('yashmi'))}
+   SD.quad(g,w,h,()=>{SD.lobed(g,0,0,27*u,14,0.1,1,Kc('kerem'),Kc('yashmi'),0.8*u);bouquet(9*u,9*u,5*u,Math.PI*0.75);
+     SD.lobed(g,w/2,h/2-40*u,7*u,10,0.2,1.2,Kc('kerem'),Kc('yashmi'),0.6*u);SD.ros(g,w/2,h/2-40*u,3*u,8,Kc('golbahi'),Kc('laki'))});
+   SD.lobed(g,w/2,h/2,28*u,22,0.08,1.35,Kc('kerem'),Kc('yashmi'),1.2*u);SD.lobed(g,w/2,h/2,20*u,16,0.1,1.35,Kc('surati'));SD.lobed(g,w/2,h/2,13*u,12,0.12,1.35,Kc('kerem'));
+   bouquet(w/2,h/2+3*u,8*u);for(let k=0;k<12;k++){const t=k*Math.PI/6;SD.ros(g,w/2+24*u*Math.sin(t),h/2-32.4*u*Math.cos(t),1.8*u,8,Kc(k%2?'golbahi':'asemani'),Kc('laki'))}}},
+ {id:'kermangarden',fa:'باغی (چهارباغ)',region:'کرمان',type:'باغی و خشتی',w:200,l:300,raj:35,preset:'all',method:'fitLibrary',count:12,sym:'none',border:{p:'rosette',g:0.008,m:0.05,c:['qahvei','laki','kerem']},draw(g,w,h){
+   const u=w/100,R=rng(3);g.fillStyle=Kc('sabz');g.fillRect(0,0,w,h);
+   const ch=5*u,cols=[w/2],rows=[h*0.25,h*0.5,h*0.75];
+   g.fillStyle=Kc('abi');for(const x of cols)g.fillRect(x-ch/2,0,ch,h);for(const y of rows)g.fillRect(0,y-ch/2,w,ch);
+   g.fillStyle=Kc('asemani');for(const x of cols)g.fillRect(x-ch/6,0,ch/3,h);for(const y of rows)g.fillRect(0,y-ch/6,w,ch/3);
+   for(const y of rows){g.fillStyle=Kc('lajevardi');g.fillRect(w/2-7*u,y-7*u,14*u,14*u);g.fillStyle=Kc('asemani');g.fillRect(w/2-5*u,y-5*u,10*u,10*u);SD.ros(g,w/2,y,3*u,8,Kc('kerem'),Kc('laki'))}
+   for(let y=0;y<h;y+=12*u)for(const x of cols){g.fillStyle=Kc('laki');g.beginPath();g.ellipse(x,y+6*u,1.4*u,0.6*u,0,0,7);g.fill()}
+   const cells=[];for(let r=0;r<4;r++)for(let c=0;c<2;c++)cells.push([c*w/2,r*h/4]);
+   cells.forEach(([x0,y0],i)=>{const cw=w/2,chh=h/4;g.fillStyle=Kc(i%3===0?'yashmi':i%3===1?'sabz':'zeytuni');g.fillRect(x0+ch/2,y0+ch/2,cw-ch,chh-ch);
+     for(let k=0;k<3;k++)SD.cypress(g,x0+cw*(0.25+k*0.25),y0+chh*0.45,chh*0.3,Kc('sabztire'),Kc('qahvei'));
+     for(let k=0;k<4;k++)SD.ros(g,x0+cw*(0.15+k*0.23),y0+chh*0.82,1.8*u,6,Kc(['golbahi','zard','sefid','surati'][k]),Kc('laki'));
+     if(i%2)SD.tree(g,x0+cw*0.5,y0+chh*0.9,chh*0.18,0,3,1.2*u,Kc('qahvei'),Kc('pestei'),Kc('golbahi'),R)})}},
+ {id:'heriz',fa:'هندسی هریس',region:'هریس',type:'هندسی',w:200,l:300,raj:25,preset:'heriz',count:8,sym:'quad',border:{p:'kangare',g:0.015,m:0.07,c:['sormei','runas','kerem']},draw(g,w,h){
+   g.fillStyle=Kc('runas');g.fillRect(0,0,w,h);const u=w/100,st=1.5*u;
+   SD.stepD(g,w/2,h/2,40*u,52*u,st,Kc('sormei'));SD.stepD(g,w/2,h/2,35*u,46*u,st,Kc('kerem'));SD.stepD(g,w/2,h/2,31*u,41*u,st,Kc('runas'));
+   SD.stepD(g,w/2,h/2,17*u,22*u,st,Kc('sormei'));SD.stepD(g,w/2,h/2,13*u,17*u,st,Kc('asemani'));SD.stepD(g,w/2,h/2,7*u,9*u,st,Kc('runas'));SD.star8(g,w/2,h/2,2.5*u,Kc('kerem'));
+   for(const s of[-1,1]){g.fillStyle=Kc('sormei');g.fillRect(w/2-2*u,h/2+s*52*u-(s>0?0:6*u),4*u,6*u);SD.stepD(g,w/2,h/2+s*61*u,6*u,6*u,st,Kc('sormei'));SD.star8(g,w/2,h/2+s*61*u,2*u,Kc('kerem'))}
+   SD.quad(g,w,h,()=>{g.fillStyle=Kc('sormei');for(let y=0;y<34*u;y+=st){const wd=Math.round((34*u-y)*0.8/st)*st;g.fillRect(0,y,wd,st+0.6)}
+     SD.stepD(g,8*u,8*u,5*u,5*u,st,Kc('asemani'));SD.star8(g,8*u,8*u,1.6*u,Kc('runas'))});
+   for(const[x,y]of[[20,45],[80,45],[20,105],[80,105],[50,8],[50,142],[12,75],[88,75]]){SD.star8(g,x*u,y*u,2.4*u,Kc('kerem'));SD.star8(g,x*u,y*u,1.2*u,Kc('sormei'))}
+   for(const[x,y]of[[30,25],[70,25],[30,125],[70,125]]){g.fillStyle=Kc('sabz');g.fillRect(x*u-3*u,y*u-0.8*u,6*u,1.6*u);g.fillRect(x*u-0.8*u,y*u-3*u,1.6*u,6*u)}}},
+ {id:'bijar',fa:'هراتی بیجار',region:'بیجار',type:'هراتی',w:130,l:200,raj:35,preset:'bijar',count:8,sym:'none',border:{p:'rosette',g:0.012,m:0.07,c:['laki','sormei','kerem']},draw(g,w,h){
+   g.fillStyle=Kc('sormei');g.fillRect(0,0,w,h);const u=w/100,s=12*u;
+   for(let y=0,r=0;y<h+s;y+=s,r++)for(let x=r%2?s:0;x<w+s;x+=2*s){
+     g.strokeStyle=Kc('kerem');g.lineWidth=0.6*u;g.beginPath();g.moveTo(x,y-s*0.85);g.lineTo(x+s*0.85,y);g.lineTo(x,y+s*0.85);g.lineTo(x-s*0.85,y);g.closePath();g.stroke();
+     for(const[dx,dy,a]of[[0.45,-0.45,-0.785],[0.45,0.45,0.785],[-0.45,0.45,-0.785],[-0.45,-0.45,0.785]])SD.leaf(g,x+dx*s*0.95,y+dy*s*0.95,s*0.42,s*0.11,a,Kc(r%2?'sabztire':'asemani'));
+     SD.ros(g,x,y,s*0.32,8,Kc('laki'),Kc('kerem'));
+     for(const[dx,dy]of[[0,-0.85],[0.85,0],[0,0.85],[-0.85,0]])SD.ros(g,x+dx*s,y+dy*s,s*0.16,6,Kc('golbahi'),Kc('sormei'))}}},
+ {id:'saraband',fa:'بته‌جقه سرابند',region:'سرابند',type:'بته‌جقه',w:130,l:200,raj:35,preset:'senneh',count:8,sym:'none',border:{p:'diagonal',g:0.012,m:0.06,c:['sormei','laki','kerem']},draw(g,w,h){
+   g.fillStyle=Kc('laki');g.fillRect(0,0,w,h);const u=w/100,cs=['sormei','kerem','zard','sabz','asemani'];
+   for(let y=6*u,r=0;y<h;y+=10*u,r++)for(let x=(r%2?5:12)*u,c=0;x<w;x+=14*u,c++){const k=cs[(r+c)%cs.length];
+     SD.boteh(g,x,y,7.5*u,0,Kc(k),Kc(k==='kerem'?'laki':'kerem'),Kc(k==='sormei'?'zard':'sormei'),r%2===1)}
+   SD.stepD(g,w/2,h/2,10*u,16*u,1.2*u,Kc('sormei'));SD.stepD(g,w/2,h/2,7*u,12*u,1.2*u,Kc('kerem'));SD.boteh(g,w/2,h/2+2*u,6*u,0,Kc('laki'),Kc('zard'),Kc('sormei'))}},
+ {id:'qashqai',fa:'لوزی‌های قشقایی',region:'قشقایی (فارس)',type:'هندسی',w:130,l:200,raj:25,preset:'qashqai',count:8,sym:'none',border:{p:'checker',g:0.015,m:0.06,c:['sormei','kerem','laki']},draw(g,w,h){
+   g.fillStyle=Kc('laki');g.fillRect(0,0,w,h);const u=w/100,st=1.6*u,R=rng(17),cs=['kerem','zard','sabz','firuzei','narenji','sormei'];
+   for(const cy of[h*0.26,h*0.5,h*0.74]){SD.stepD(g,w/2,cy,30*u,h*0.13,st,Kc('sormei'));SD.stepD(g,w/2,cy,25*u,h*0.105,st,Kc('kerem'));SD.stepD(g,w/2,cy,19*u,h*0.08,st,Kc('laki'));SD.stepD(g,w/2,cy,9*u,h*0.04,st,Kc('zard'));SD.star8(g,w/2,cy,2*u,Kc('sormei'))}
+   g.fillStyle=Kc('sormei');g.fillRect(w/2-1.5*u,h*0.13,3*u,h*0.74);
+   for(let i=0;i<70;i++){const x=R()*w,y=R()*h;if(Math.abs(x-w/2)<32*u*(1-Math.abs(((y/h)*4)%2-1)*0.2))continue;const k=Kc(cs[i%cs.length]);
+     if(i%3===0)SD.star8(g,x,y,1.6*u,k);else if(i%3===1)SD.stepD(g,x,y,2*u,2.6*u,0.8*u,k);else SD.bird(g,x,y,1.4*u,k,Kc('zard'),R()<0.5)}}},
+ {id:'bakhtiari',fa:'خشتی بختیاری',region:'بختیاری',type:'باغی و خشتی',w:150,l:225,raj:30,preset:'bakhtiari',count:9,sym:'none',border:{p:'zigzag',g:0.012,m:0.06,c:['sormei','laki','kerem']},draw(g,w,h){
+   const u=w/100,R=rng(5),cols=4,rows=6,cw=w/cols,chh=h/rows,f=['laki','sormei','kerem','sabz','zard','firuzei'];
+   g.fillStyle=Kc('kerem');g.fillRect(0,0,w,h);
+   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const x=c*cw,y=r*chh,fc=f[(r*cols+c*3+r)%f.length],m=1.2*u;
+     g.fillStyle=Kc(fc);g.fillRect(x+m,y+m,cw-2*m,chh-2*m);const cx=x+cw/2,cy=y+chh/2,dark=fc==='sormei'||fc==='laki'||fc==='sabz';
+     const t=(r+c)%3;
+     if(t===0)SD.cypress(g,cx,cy,chh*0.4,Kc(fc==='sabz'?'sabztire':'sabz'),Kc('gerdui'));
+     else if(t===1){SD.ros(g,cx,cy,Math.min(cw,chh)*0.26,8,Kc(dark?'kerem':'laki'),Kc('zard'));for(const s of[-1,1])SD.leaf(g,cx+s*cw*0.3,cy+chh*0.25,cw*0.12,cw*0.04,s*0.6,Kc('sabztire'))}
+     else SD.tree(g,cx,y+chh*0.88,chh*0.2,0,3,1*u,Kc('gerdui'),Kc(dark?'pestei':'sabz'),Kc(dark?'kerem':'laki'),R);
+     g.strokeStyle=Kc('gerdui');g.lineWidth=0.5*u;g.strokeRect(x+m,y+m,cw-2*m,chh-2*m)}}},
+ {id:'baluch',fa:'محرابی بلوچ',region:'بلوچ (خراسان)',type:'محرابی و درختی',w:80,l:130,raj:30,preset:'baluch',count:7,sym:'lr',border:{p:'checker',g:0.02,m:0.08,c:['siah','albalu','shotori']},draw(g,w,h){
+   const u=w/100,R=rng(13);g.fillStyle=Kc('albalu');g.fillRect(0,0,w,h);
+   SD.arch(g,12*u,h*0.2,88*u,h*0.92,Kc('sormei'));SD.arch(g,16*u,h*0.22,84*u,h*0.9,Kc('shotori'));
+   g.fillStyle=Kc('gerdui');g.fillRect(48*u,h*0.3,4*u,h*0.58);
+   for(let k=0;k<9;k++){const y=h*(0.34+k*0.06);for(const s of[-1,1]){g.save();g.translate(50*u,y);g.scale(s,1);g.strokeStyle=Kc('gerdui');g.lineWidth=1.6*u;g.beginPath();g.moveTo(0,0);g.lineTo(18*u-k*0.8*u,-5*u);g.stroke();
+     SD.stepD(g,18*u-k*0.8*u,-5*u,3*u,3*u,0.9*u,Kc(k%2?'annabi':'albalu'));g.restore()}}
+   SD.stepD(g,50*u,h*0.28,5*u,5*u,1*u,Kc('annabi'));
+   for(const[x,y]of[[25,10],[50,8],[75,10],[25,17],[75,17]]){SD.stepD(g,x*u,h*y/100,4*u,4*u,1*u,Kc('kerem'));SD.stepD(g,x*u,h*y/100,2*u,2*u,0.8*u,Kc('albalu'))}
+   for(let i=0;i<14;i++)SD.star8(g,(20+R()*60)*u,h*(0.82+R()*0.06),1*u,Kc('kerem'))}},
+ {id:'turkmen',fa:'گل ترکمن',region:'ترکمن (گلستان)',type:'هندسی',w:150,l:225,raj:40,preset:'turkmen',count:7,sym:'quad',border:{p:'kangare',g:0.012,m:0.05,c:['siah','sormei','kerem']},draw(g,w,h){
+   const u=w/100;g.fillStyle=Kc('albalu');g.fillRect(0,0,w,h);
+   const cols=4,rows=7,dx=w/cols,dy=h/rows;
+   for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)SD.gul(g,dx*(c+0.5),dy*(r+0.5),dx*0.38,dy*0.3,Kc('runas'),Kc('kerem'),Kc('sormei'),Kc('siah'));
+   for(let r=0;r<=rows;r++)for(let c=0;c<=cols;c++){const x=dx*c,y=dy*r;SD.stepD(g,x,y,dx*0.12,dy*0.12,0.9*u,Kc('sormei'));SD.star8(g,x,y,1*u,Kc('kerem'))}
+   g.strokeStyle=Kc('gerdui');g.lineWidth=0.5*u;for(let c=0;c<cols;c++){g.beginPath();g.moveTo(dx*(c+0.5),0);g.lineTo(dx*(c+0.5),h);g.stroke()}}},
+ {id:'qom',fa:'درخت زندگی قم',region:'قم',type:'محرابی و درختی',w:100,l:150,raj:70,gereh:6.5,preset:'qom',count:12,sym:'lr',border:{p:'rosette',g:0.01,m:0.06,c:['sormei','firuzei','kerem']},draw(g,w,h){
+   const u=w/100,R=rng(42);g.fillStyle=Kc('kerem');g.fillRect(0,0,w,h);
+   SD.arch(g,6*u,h*0.08,94*u,h*0.97,Kc('sefid'));
+   g.fillStyle=Kc('lajevardi');g.beginPath();g.moveTo(38*u,h*0.94);g.lineTo(62*u,h*0.94);g.lineTo(58*u,h*0.84);g.quadraticCurveTo(70*u,h*0.8,60*u,h*0.76);g.lineTo(40*u,h*0.76);g.quadraticCurveTo(30*u,h*0.8,42*u,h*0.84);g.closePath();g.fill();
+   g.fillStyle=Kc('firuzei');g.fillRect(40*u,h*0.79,20*u,h*0.015);
+   SD.tree(g,50*u,h*0.76,h*0.17,0,6,2.6*u,Kc('qahvei'),Kc('yashmi'),Kc('golbahi'),R);
+   for(const[x,y,f]of[[28,40,0],[72,40,1],[35,58,1],[65,58,0],[50,22,0]])SD.bird(g,x*u,h*y/100,2.2*u,Kc(f?'firuzei':'laki'),Kc('talayi'),f);
+   for(let i=0;i<16;i++){const x=(10+R()*80)*u,y=h*(0.15+R()*0.7);SD.ros(g,x,y,1.3*u,6,Kc(i%2?'surati':'asemani'),Kc('talayi'))}}},
+ {id:'gabbeh',fa:'گبهٔ فارس',region:'قشقایی (فارس)',type:'گبه',w:120,l:180,raj:15,preset:'gabbeh',count:7,sym:'none',border:{p:'solid',g:0.02,m:0.03,c:['gerdui','sormei','kerem']},draw(g,w,h){
+   const u=w/100,R=rng(8);
+   for(let y=0;y<h;y+=2*u){g.fillStyle=R()<0.25?Kc('narenji'):Kc('laki');g.fillRect(0,y,w,2*u+1)}
+   SD.stepD(g,w/2,h*0.5,9*u,12*u,2*u,Kc('zard'));SD.stepD(g,w/2,h*0.5,4*u,6*u,2*u,Kc('sormei'));
+   const goat=(x,y,s,c)=>{g.fillStyle=c;g.fillRect(x-s,y-s*0.4,s*2,s*0.8);g.fillRect(x+s*0.8,y-s*0.9,s*0.5,s*0.6);for(const lx of[-0.8,-0.3,0.3,0.8])g.fillRect(x+lx*s-s*0.1,y+s*0.4,s*0.2,s*0.6);g.fillRect(x-s*1.2,y-s*0.6,s*0.25,s*0.3)};
+   for(const[x,y,c]of[[25,20,'kerem'],[70,26,'sormei'],[30,78,'zard'],[68,84,'kerem'],[18,52,'sabz']])goat(x*u,h*y/100,3.5*u,Kc(c));
+   SD.cypress(g,82*u,h*0.55,8*u,Kc('sabz'),Kc('gerdui'));SD.cypress(g,50*u,h*0.18,6*u,Kc('sabz'),Kc('gerdui'))}},
+ {id:'sarouk',fa:'افشان گلدار ساروق',region:'ساروق (اراک)',type:'گلدار',w:130,l:200,raj:40,preset:'sarouk',count:10,sym:'lr',border:{p:'rosette',g:0.01,m:0.06,c:['sormei','annabi','golbahi']},draw(g,w,h){
+   const u=w/100;g.fillStyle=Kc('annabi');g.fillRect(0,0,w,h);
+   const spray=(x,y,s,a)=>{g.save();g.translate(x,y);g.rotate(a);g.strokeStyle=Kc('sormei');g.lineWidth=0.5*s/5;g.beginPath();g.moveTo(0,s*1.6);g.quadraticCurveTo(s*0.3,0,0,-s*1.4);g.stroke();
+     for(const[px,py,c]of[[0,-s*1.4,'golbahi'],[-s*0.8,-s*0.4,'surati'],[s*0.9,-s*0.2,'golbahi'],[-s*0.5,s*0.7,'kerem'],[s*0.6,s*0.9,'surati']])SD.ros(g,px,py,s*0.42,7,Kc(c),Kc('laki'));
+     for(const[px,py,aa]of[[-s*0.5,-s*1,-0.8],[s*0.5,-s*0.7,0.8],[-s*0.7,s*0.2,-0.5],[s*0.8,s*0.4,0.6],[0,s*1.2,0.2]])SD.leaf(g,px,py,s*0.45,s*0.15,aa,Kc('sabz'));g.restore()};
+   for(let y=7*u,r=0;y<h;y+=14*u,r++)for(let x=(r%2?13:26)*u;x<w;x+=26*u){if(Math.abs(x-w/2)<12*u&&Math.abs(y-h/2)<16*u)continue;spray(x,y,4.6*u,(r%2?-1:1)*0.4)}
+   for(let y=0,r=0;y<h;y+=7*u,r++)for(let x=(r%2?0:6.5)*u;x<w;x+=13*u)SD.leaf(g,x,y,1.6*u,0.5*u,r%2?0.7:-0.7,Kc('sabz'));
+   spray(w/2,h/2,8*u,0)}}
+];
+const SREG=[...new Set(SAMPLES.map(s=>s.region))],STYP=[...new Set(SAMPLES.map(s=>s.type))];
+let galReg='',galTyp='',thumbs={};
+function sampleCanvas(sm,width){const w=width,h=Math.round(width*sm.l/sm.w),c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);sm.draw(g,w,h);return c}
+function renderGallery(){
+  const chip=(v,cur,l)=>`<button class="chipbtn" data-v="${v}" aria-pressed="${v===cur}">${l}</button>`;
+  $('#galRegion').innerHTML='<span class="hint">منطقه:</span>'+chip('',galReg,'همه')+SREG.map(r=>chip(r,galReg,r)).join('');
+  $('#galType').innerHTML='<span class="hint">نوع طرح:</span>'+chip('',galTyp,'همه')+STYP.map(t=>chip(t,galTyp,t)).join('');
+  const list=SAMPLES.filter(s=>(!galReg||s.region===galReg)&&(!galTyp||s.type===galTyp));
+  $('#gallery').innerHTML=list.map(s=>{if(!thumbs[s.id])thumbs[s.id]=sampleCanvas(s,120).toDataURL('image/png');
+    return`<button class="gcard" data-id="${s.id}" aria-pressed="${S.sampleId===s.id}"><img src="${thumbs[s.id]}" alt=""><b>${s.fa}</b><small>${s.region}، ${s.type}</small><small>${fa(s.w)}×${fa(s.l)}، رج ${fa(s.raj)}</small></button>`}).join('')||'<p class="hint">طرحی با این فیلترها نیست.</p>';
+}
+function nearestPalIdx(hex){const l=lab(...hex2rgb(hex));let b=0,bd=1e9;palette.forEach((c,i)=>{const d=dE(l,lab(...hex2rgb(c.hex)));if(d<bd){bd=d;b=i}});return b}
+function loadSample(sm,quiet){
+  curProj={id:null,name:''};if($('#projName'))$('#projName').value=quiet?'':sm.fa;
+  S.widthCm=sm.w;S.lengthCm=sm.l;S.raj=sm.raj;S.gereh=sm.gereh||7;S.rowRatio=1;S.sym=sm.sym||'none';S.repeat={x:1,y:1,mirror:true};
+  S.adj={bright:0,contrast:0,sat:0,gamma:1,median:0,kuwahara:0,blur:0,sharpen:0};S.clean={despeckle:1,outline:false,outlineColor:-1,outlineThr:22};
+  S.quant.dither='none';S.preset=sm.preset;S.method=sm.method||'fitPreset';S.count=sm.count;S.sampleId=sm.id;S.cropLock=true;
+  setSource(sampleCanvas(sm,600),sm.fa);
+  const{W:kw}=knotDims();S.border.on=!!sm.border;if(sm.border){S.border.pattern=sm.border.p;S.border.guard=Math.max(1,Math.round(kw*sm.border.g));S.border.main=Math.max(3,Math.round(kw*sm.border.m))}
+  syncControls();dirty=1;run();buildPalette();
+  if(sm.border&&sm.border.c){[S.border.c1,S.border.c2,S.border.c3]=sm.border.c.map(id=>nearestPalIdx(Kc(id)));renderColorSelects();invalidate(3)}
+  renderGallery();if(!quiet){setView('map');toast('طرح «'+sm.fa+'» بار شد؛ پالت، رج، قرینه و حاشیهٔ مناسب آن تنظیم شد.')}
+}
+
 
 /* ---------- export ---------- */
 let dlP=null;
@@ -1066,7 +1320,7 @@ function legendDraw(g,x,y,w,cell,ink){
   for(const c of palette){const cx=x+w-((i%cols)+1)*(w/cols),cy=y+Math.floor(i/cols)*rowH;
     g.fillStyle=c.hex;g.fillRect(cx+w/cols-40,cy,32,rowH-8);g.strokeStyle='rgba(0,0,0,.35)';g.strokeRect(cx+w/cols-40,cy,32,rowH-8);
     g.fillStyle=symInk(i);g.textAlign='center';g.font='bold 14px Vazirmatn,Tahoma';g.fillText(CODES[i]+' '+SYMS[i%SYMS.length],cx+w/cols-24,cy+(rowH-8)/2);
-    g.fillStyle=ink;g.textAlign='right';g.font='14px Vazirmatn,Tahoma';g.fillText(`${c.fa}  ·  ${nf(counts[i]||0)} گره  ·  ${nf((counts[i]||0)/grid.length*100,1)}٪`,cx+w/cols-50,cy+(rowH-8)/2);i++}
+    g.fillStyle=ink;g.textAlign='right';g.font='14px Vazirmatn,Tahoma';g.fillText(`${c.fa}، ${nf(counts[i]||0)} گره، ${nf((counts[i]||0)/grid.length*100,1)}٪`,cx+w/cols-50,cy+(rowH-8)/2);i++}
   return Math.ceil(palette.length/cols)*rowH;
 }
 async function exportPng(){
@@ -1076,7 +1330,7 @@ async function exportPng(){
   const m=60,mw=W*cell,mh=Math.round(H*cell*asp),cols=Math.max(1,Math.floor((mw)/260)),legH=Math.ceil(palette.length/cols)*(Math.max(cell,14)+20)+90;
   const c=document.createElement('canvas');c.width=mw+2*m;c.height=mh+2*m+legH+50;const g=c.getContext('2d');g.direction='rtl';
   g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.fillStyle='#1A2036';g.font='bold 22px Vazirmatn,Tahoma';g.textAlign='right';g.textBaseline='top';
-  g.fillText(`نقشهٔ فرش · ${fa(S.widthCm)}×${fa(S.lengthCm)} سانتی‌متر · رج ${fa(S.raj)} · ${fa(W)}×${fa(H)} گره · ${fa(palette.length)} رنگ`,c.width-m,16);
+  g.fillText(`نقشهٔ فرش، ${fa(S.widthCm)}×${fa(S.lengthCm)} سانتی‌متر، رج ${fa(S.raj)}، ${fa(W)}×${fa(H)} گره، ${fa(palette.length)} رنگ`,c.width-m,16);
   drawMapRegion(g,m,m+40,cell,cell*asp,0,0,W,H,{grid:true,symbols:cell>=12,center:true,thin:0.6,bold:Math.max(1.2,cell/8)});
   g.fillStyle='#1A2036';g.font=`${Math.max(10,Math.min(14,cell))}px Vazirmatn,Tahoma`;g.textAlign='center';g.textBaseline='middle';const rtl=$('#rtl').checked;
   for(let n=10;n<=W;n+=10){const x=rtl?W-n:n-1;g.fillText(fa(n),m+(x+.5)*cell,m+40-12);g.fillText(fa(n),m+(x+.5)*cell,m+40+mh+12)}
@@ -1116,16 +1370,16 @@ async function exportPdf(){
     g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.fillStyle='#1A2036';g.textAlign='right';g.textBaseline='top';const R0=cv.width-12*ppm;
     g.font=`bold ${7*ppm}px Vazirmatn,Tahoma`;g.fillText('نقشهٔ فرش',R0,12*ppm);
     g.font=`${3.6*ppm}px Vazirmatn,Tahoma`;const s=specs();
-    const lines=[`ابعاد: ${fa(S.widthCm)} × ${fa(S.lengthCm)} سانتی‌متر · رج ${fa(S.raj)} (هر ${fa(S.gereh)} سانتی‌متر) · ${grade(S.raj)}`,
-      `گره‌ها: ${fa(W)} در عرض × ${fa(H)} رج · مجموع ${nf(W*H)} گره · ${nf(s.kpsi)} گره در اینچ مربع`,
-      `بخش چاپ‌شده: ${$('#region').selectedOptions[0].text} · ${fa(L.pages)} برگه · هر خانه ${fa(L.c)} میلی‌متر`,
+    const lines=[`ابعاد: ${fa(S.widthCm)} × ${fa(S.lengthCm)} سانتی‌متر، رج ${fa(S.raj)} (هر ${fa(S.gereh)} سانتی‌متر)، ${grade(S.raj)}`,
+      `گره‌ها: ${fa(W)} در عرض × ${fa(H)} رج، مجموع ${nf(W*H)} گره، ${nf(s.kpsi)} گره در اینچ مربع`,
+      `بخش چاپ‌شده: ${$('#region').selectedOptions[0].text}، ${fa(L.pages)} برگه، هر خانه ${fa(L.c)} میلی‌متر`,
       `شماره‌گذاری رج‌ها از پایین؛ گره‌ها ${rtl?'از راست به چپ':'از چپ به راست'}. خطوط پررنگ هر ۱۰ گره؛ خط‌چین قرمز محور میانی فرش است.`];
     lines.forEach((t,i)=>g.fillText(t,R0,(24+i*6)*ppm));
     g.font=`bold ${4.2*ppm}px Vazirmatn,Tahoma`;g.fillText('راهنمای رنگ و پشم',R0,52*ppm);
     let y=60*ppm;const kgT=s.kg;g.font=`${3.4*ppm}px Vazirmatn,Tahoma`;g.textBaseline='middle';
     palette.forEach((c,i)=>{const rh=7*ppm;if(y>cv.height-70*ppm)return;g.fillStyle=c.hex;g.fillRect(R0-14*ppm,y,14*ppm,rh-1.5*ppm);g.strokeStyle='#0005';g.strokeRect(R0-14*ppm,y,14*ppm,rh-1.5*ppm);
       g.fillStyle=symInk(i);g.textAlign='center';g.fillText(CODES[i]+' '+SYMS[i%SYMS.length],R0-7*ppm,y+(rh-1.5*ppm)/2);g.fillStyle='#1A2036';g.textAlign='right';
-      const n=counts[i]||0;g.fillText(`${c.fa} (${c.en||''})  ·  ${nf(n)} گره  ·  ${nf(n/grid.length*100,1)}٪  ·  حدود ${nf(kgT*n/grid.length*1000)} گرم پشم`,R0-17*ppm,y+(rh-1.5*ppm)/2);y+=rh});
+      const n=counts[i]||0;g.fillText(`${c.fa} (${c.en||''})، ${nf(n)} گره، ${nf(n/grid.length*100,1)}٪، حدود ${nf(kgT*n/grid.length*1000)} گرم پشم`,R0-17*ppm,y+(rh-1.5*ppm)/2);y+=rh});
     // sheet index
     const ix=12*ppm,iw=cv.width-24*ppm,iy=Math.max(y+8*ppm,cv.height-64*ppm),ih=cv.height-iy-12*ppm,rw=L.R.x1-L.R.x0,rh2=L.R.y1-L.R.y0;
     const sc=Math.min(iw/rw,ih/(rh2*asp)),ox=ix+(iw-rw*sc)/2,oy=iy;g.drawImage(colorCanvas,L.R.x0,L.R.y0,rw,rh2,ox,oy,rw*sc,rh2*asp*sc);
@@ -1142,7 +1396,7 @@ async function exportPdf(){
       const pc=document.createElement('canvas');pc.width=kw*pxk+2*mL;pc.height=Math.round(kh*ch)+mT+mB;g=pc.getContext('2d');g.direction='rtl';g.fillStyle='#fff';g.fillRect(0,0,pc.width,pc.height);
       drawMapRegion(g,mL-rx0*pxk,mT-ry0*ch,pxk,ch,rx0,ry0,rx1,ry1,{grid:true,symbols:sym,center:true,thin:0.8,bold:2.2});
       g.fillStyle='#1A2036';g.font=`bold 22px Vazirmatn,Tahoma`;g.textAlign='right';g.textBaseline='top';
-      g.fillText(`برگهٔ ${fa(r+1)}-${fa(cc+1)} · رج ${fa(H-ry1+1)} تا ${fa(H-ry0)} · گره ${fa(Math.min(colLabel(rx0),colLabel(rx1-1)))} تا ${fa(Math.max(colLabel(rx0),colLabel(rx1-1)))}`,pc.width-mL,10);
+      g.fillText(`برگهٔ ${fa(r+1)}-${fa(cc+1)}، رج ${fa(H-ry1+1)} تا ${fa(H-ry0)}، گره ${fa(Math.min(colLabel(rx0),colLabel(rx1-1)))} تا ${fa(Math.max(colLabel(rx0),colLabel(rx1-1)))}`,pc.width-mL,10);
       g.font='14px Vazirmatn,Tahoma';g.textBaseline='middle';g.textAlign='center';
       for(let x=rx0;x<rx1;x++){const n=colLabel(x);if(n%10===0){g.fillText(fa(n),mL+(x-rx0+.5)*pxk,mT-12);g.fillText(fa(n),mL+(x-rx0+.5)*pxk,pc.height-mB+14)}}
       for(let yy=ry0;yy<ry1;yy++){const n=H-yy;if(n%10===0){const py=mT+(yy-ry0+.5)*ch;g.textAlign='left';g.fillText(fa(n),pc.width-mL+4,py);g.textAlign='right';g.fillText(fa(n),mL-4,py)}}
@@ -1161,9 +1415,9 @@ function legendCsv(){
   return t;
 }
 function instructionsTxt(){
-  const s=specs(),rtl=$('#rtl').checked;let t=`نقشهٔ فرش — تعلیم رج‌به‌رج\nابعاد ${S.widthCm}×${S.lengthCm} سانتی‌متر · رج ${S.raj} · ${W} گره در عرض × ${H} رج · مجموع ${W*H} گره\nجهت بافت: رج ۱ پایین‌ترین رج است؛ گره‌ها ${rtl?'از راست به چپ':'از چپ به راست'} شمرده می‌شوند.\n\nکلید رنگ‌ها:\n`;
-  palette.forEach((c,i)=>t+=`  ${CODES[i]} = ${c.fa} (${c.en||''}) ${c.hex} — ${counts[i]||0} گره\n`);
-  t+='\n';for(let r=1;r<=H;r++){t+=`رج ${r}: `+rowRuns(r).map(u=>`${u.n} ${palette[u.k].fa}`).join('، ')+'\n'}
+  const s=specs(),rtl=$('#rtl').checked;let t=`نقشهٔ فرش — تعلیم رج‌به‌رج\nابعاد ${fa(S.widthCm)}×${fa(S.lengthCm)} سانتی‌متر، رج ${fa(S.raj)}، ${fa(W)} گره در عرض × ${fa(H)} رج، مجموع ${nf(W*H)} گره\nجهت بافت: رج ۱ پایین‌ترین رج است؛ گره‌ها ${rtl?'از راست به چپ':'از چپ به راست'} شمرده می‌شوند.\n\nکلید رنگ‌ها:\n`;
+  palette.forEach((c,i)=>t+=`  ${CODES[i]} = ${c.fa} (${c.en||''}) ${c.hex} — ${fa(counts[i]||0)} گره\n`);
+  t+='\n';for(let r=1;r<=H;r++){t+=`رج ${fa(r)}: `+rowRuns(r).map(u=>`${fa(u.n)} ${palette[u.k].fa}`).join('، ')+'\n'}
   return t;
 }
 function gridCsv(){let t='';for(let y=0;y<H;y++){const row=[];for(let x=0;x<W;x++)row.push(CODES[grid[y*W+x]]);t+=row.join(',')+'\n'}return'﻿'+t}
@@ -1191,11 +1445,12 @@ async function restore(rec){
     const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('تصویر پروژه خوانده نشد'));i.src=url});
     if(isBlob)URL.revokeObjectURL(url);
     setSource(img,rec.S.srcName||'پروژه');if(isBlob)srcBlob={id:src._id,blob:rec.image};
+    S.repeat={x:1,y:1,mirror:true};S.wage=0;S.woolPrice=0;S.sampleId='';
     Object.assign(S,JSON.parse(JSON.stringify(rec.S)));S.crop={...rec.S.crop};
     palette=rec.palette.map(c=>({...c}));applyExportSettings(rec.exp);
     rotated=null;prevWH='';dirty=1;run();
     $('#srcName').textContent=S.srcName;$('#showGrid').checked=S.showGrid;$('#showSym').checked=S.showSym;
-    syncControls();renderPalette();renderColorSelects();needFit=true;setView(S.view);
+    syncControls();renderPalette();renderColorSelects();renderGallery();needFit=true;setView(S.view);
   }finally{restoring=false}
 }
 function markDirty(){if(restoring||!booted)return;$('#saveState').textContent='در حال ذخیره…';$('#saveState').classList.add('dirty');clearTimeout(autoT);autoT=setTimeout(autosave,1200)}
@@ -1215,7 +1470,7 @@ async function saveNamed(asNew){
 async function renderProjects(){
   let list=[];try{list=(await DB.all()).filter(p=>p.id!=='autosave').sort((a,b)=>b.updated-a.updated)}catch(e){$('#projList').innerHTML='<div class="projempty">این مرورگر اجازهٔ ذخیره‌سازی نمی‌دهد؛ از «پشتیبان به‌صورت فایل» در زبانهٔ خروجی استفاده کنید.</div>';return}
   if(!list.length){$('#projList').innerHTML='<div class="projempty">هنوز پروژه‌ای با نام ذخیره نشده است. نامی بنویسید و «ذخیره» را بزنید.</div>';return}
-  $('#projList').innerHTML=list.map(p=>`<div class="proj${p.id===curProj.id?' cur':''}" data-id="${p.id}"><img src="${p.thumb||''}" alt=""><div style="min-width:0"><b></b><small>${new Date(p.updated).toLocaleString('fa-IR',{dateStyle:'medium',timeStyle:'short'})} · ${fa(p.S.widthCm)}×${fa(p.S.lengthCm)} · ${fa(p.palette.length)} رنگ</small></div><button class="btn" data-act="open">باز کردن</button><button class="x" data-act="del" aria-label="حذف پروژه">×</button></div>`).join('');
+  $('#projList').innerHTML=list.map(p=>`<div class="proj${p.id===curProj.id?' cur':''}" data-id="${p.id}"><img src="${p.thumb||''}" alt=""><div style="min-width:0"><b></b><small>${new Date(p.updated).toLocaleString('fa-IR',{dateStyle:'medium',timeStyle:'short'})}، ${fa(p.S.widthCm)}×${fa(p.S.lengthCm)}، ${fa(p.palette.length)} رنگ</small></div><button class="btn" data-act="open">باز کردن</button><button class="x" data-act="del" aria-label="حذف پروژه">×</button></div>`).join('');
   $$('#projList .proj').forEach((el,i)=>el.querySelector('b').textContent=list[i].name);
 }
 $('#projSave').addEventListener('click',()=>saveNamed(false));
@@ -1240,6 +1495,10 @@ function loadProject(f){
 }
 
 /* ---------- wiring ---------- */
+$('#galRegion').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;galReg=b.dataset.v;renderGallery()});
+$('#galType').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;galTyp=b.dataset.v;renderGallery()});
+$('#gallery').addEventListener('click',e=>{const b=e.target.closest('.gcard');if(!b)return;loadSample(SAMPLES.find(x=>x.id===b.dataset.id))});
+$('#simWarn').addEventListener('click',e=>{const b=e.target.closest('[data-merge]');if(!b)return;const i=+b.dataset.merge,n=palette[i].fa;removeColor(i);toast('«'+n+'» با رنگ نزدیکش ادغام شد.')});
 $$('.tab').forEach(t=>t.addEventListener('click',()=>{
   $$('.tab').forEach(x=>x.setAttribute('aria-selected',x===t));$$('.pane').forEach(p=>p.hidden=p.dataset.pane!==t.dataset.tab);
   if(t.dataset.tab==='image')setView('source');else if(S.view==='source')setView('map');
@@ -1251,13 +1510,12 @@ const drop=$('#drop');['dragenter','dragover'].forEach(ev=>drop.addEventListener
 drop.addEventListener('drop',e=>loadFile(e.dataTransfer.files[0]));
 $('#wrap').addEventListener('dragover',e=>e.preventDefault());$('#wrap').addEventListener('drop',e=>{e.preventDefault();loadFile(e.dataTransfer.files[0])});
 window.addEventListener('paste',e=>{const it=[...(e.clipboardData||{}).items||[]].find(i=>i.type.startsWith('image/'));if(it)loadFile(it.getAsFile())});
-$('#useSample').addEventListener('click',()=>{curProj={id:null,name:''};$('#projName').value='';renderProjects();setSource(makeSample(),'طرح نمونه');dirty=1;run();buildPalette();setView('source')});
 const geo=()=>{if(S.cropLock)S.crop=fitCropRatio(S.crop,false);invalidate(1);redraw()};
 $('#rotR').addEventListener('click',()=>{S.rot90=(S.rot90+1)%4;rotated=null;S.crop={x:0,y:0,w:1,h:1};if(S.cropLock)S.crop=fitCropRatio(S.crop,true);invalidate(1);redraw()});
 $('#rotL').addEventListener('click',()=>{S.rot90=(S.rot90+3)%4;rotated=null;S.crop={x:0,y:0,w:1,h:1};if(S.cropLock)S.crop=fitCropRatio(S.crop,true);invalidate(1);redraw()});
 $('#flipH').addEventListener('click',()=>{S.flipH=!S.flipH;invalidate(1);redraw()});
 $('#flipV').addEventListener('click',()=>{S.flipV=!S.flipV;invalidate(1);redraw()});
-$('#fine').addEventListener('input',e=>{S.fine=+e.target.value;$('#fineOut').textContent=S.fine+'°';rotated=null;redraw()});
+$('#fine').addEventListener('input',e=>{S.fine=+e.target.value;$('#fineOut').textContent=fa(S.fine)+'°';rotated=null;redraw()});
 $('#fine').addEventListener('change',geo);
 $('#cropLock').addEventListener('change',e=>{S.cropLock=e.target.checked;if(S.cropLock)geo()});
 $('#cropFit').addEventListener('click',()=>{S.crop=fitCropRatio(S.crop,true);invalidate(1);redraw()});
@@ -1271,16 +1529,16 @@ $('#swapWL').addEventListener('click',()=>{[S.widthCm,S.lengthCm]=[S.lengthCm,S.
 $('#raj').innerHTML=[15,20,25,30,35,40,45,50,55,60,65,70,80,90,100].map(r=>`<option value="${r}">${fa(r)} رج — ${grade(r)}</option>`).join('');
 $('#raj').addEventListener('change',e=>{S.raj=+e.target.value;sizeChanged()});
 $('#gereh').addEventListener('change',e=>{S.gereh=+e.target.value;sizeChanged()});
-$('#rowRatio').addEventListener('input',e=>{S.rowRatio=+e.target.value;$('#rowRatioOut').textContent=S.rowRatio.toFixed(2);updateSpecs()});
+$('#rowRatio').addEventListener('input',e=>{S.rowRatio=+e.target.value;$('#rowRatioOut').textContent=fa(S.rowRatio.toFixed(2));updateSpecs()});
 $('#rowRatio').addEventListener('change',()=>{needFit=true;sizeChanged()});
-for(const[id,k]of[['kpd','kpd'],['weavers','weavers'],['kgm2','kgm2']])$('#'+id).addEventListener('input',e=>{S[k]=Math.max(+e.target.min,+e.target.value||1);updateSpecs();updateHeader();markDirty()});
+for(const[id,k]of[['kpd','kpd'],['weavers','weavers'],['kgm2','kgm2'],['wage','wage'],['woolPrice','woolPrice']])$('#'+id).addEventListener('input',e=>{S[k]=Math.max(+e.target.min,+e.target.value||(+e.target.min?1:0));updateSpecs();updateHeader();markDirty()});
 $('#presets').addEventListener('click',e=>{const b=e.target.closest('.preset');if(!b)return;S.preset=b.dataset.id;const n=PRESETS.find(p=>p.id===S.preset).ids.length;if(S.method==='fitPreset'&&S.count>n)S.count=n;syncControls();buildPalette()});
 $('#method').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.method=b.dataset.v;syncControls()});
-$('#count').addEventListener('input',e=>{S.count=+e.target.value;$('#countOut').textContent=S.count});
+$('#count').addEventListener('input',e=>{S.count=+e.target.value;$('#countOut').textContent=fa(S.count)});
 $('#applyPal').addEventListener('click',buildPalette);
 $('#dist').addEventListener('change',e=>{S.quant.dist=e.target.value;invalidate(3)});
 $('#dither').addEventListener('change',e=>{S.quant.dither=e.target.value;invalidate(3)});
-$('#ditherStrength').addEventListener('input',e=>{S.quant.strength=+e.target.value;$('#ditherStrengthOut').textContent=S.quant.strength.toFixed(2)});
+$('#ditherStrength').addEventListener('input',e=>{S.quant.strength=+e.target.value;$('#ditherStrengthOut').textContent=fa(S.quant.strength.toFixed(2))});
 $('#ditherStrength').addEventListener('change',()=>invalidate(3));
 $('#pal').addEventListener('click',e=>{const row=e.target.closest('.pal-row');if(!row)return;const i=+row.dataset.i,a=e.target.dataset.act;
   if(a==='del')removeColor(i)});
@@ -1295,7 +1553,7 @@ $('#removeRare').addEventListener('click',()=>{if(!grid)return;const rare=counts
 $$('[data-bind]').forEach(el=>{
   const lv=+el.dataset.lv,k=el.dataset.bind,o=el.parentElement.querySelector('output');
   if(el.type==='checkbox')el.addEventListener('change',()=>{setPath(k,el.checked);invalidate(lv)});
-  else{el.addEventListener('input',()=>{setPath(k,+el.value);if(o)o.textContent=fmtOut(k,+el.value)});el.addEventListener('change',()=>invalidate(lv))}
+  else{el.addEventListener('input',()=>{setPath(k,+el.value);if(o)o.textContent=fmtOut(k,+el.value)});el.addEventListener('change',()=>{if(k.startsWith('repeat.')&&S.cropLock)S.crop=fitCropRatio(S.crop,false);invalidate(lv)})}
 });
 $('#outlineColor').addEventListener('change',e=>{S.clean.outlineColor=+e.target.value;if(S.clean.outline)invalidate(3)});
 for(const k of['c1','c2','c3'])$('#b'+k).addEventListener('change',e=>{S.border[k]=+e.target.value;invalidate(3)});
@@ -1333,40 +1591,42 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
 /* ---------- guided tour ---------- */
 const TOUR=[
  {chap:'آغاز',title:'به نقشه‌کش خوش آمدید',text:'این راهنما گام‌به‌گام نشان می‌دهد چطور یک تصویر را به نقشهٔ قابل بافت تبدیل کنید: بارگذاری تصویر، تنظیم اندازه و رج، انتخاب رنگ‌ها، پردازش تصویر و در پایان خروجی چاپی برای بافنده. پیکان زرد هر بار بخش مورد نظر را نشان می‌دهد. با کلیدهای جهت‌نما هم می‌توانید جابه‌جا شوید.'},
- {chap:'۱ · تصویر',tab:'image',sel:'#projGroup',title:'پروژه‌های من',text:'هر تغییری که می‌دهید خودکار در همین مرورگر ذخیره می‌شود؛ اگر صفحه را ببندید، دفعهٔ بعد کار از همان‌جا ادامه پیدا می‌کند. برای نگه داشتن چند طرح، نامی بنویسید و «ذخیره» را بزنید. «نسخهٔ جدید» یک نسخهٔ جدا می‌سازد. فهرست پایین همهٔ پروژه‌ها را با تصویر کوچک نشان می‌دهد.'},
- {chap:'۱ · تصویر',tab:'image',sel:'#drop',title:'بارگذاری تصویر',text:'روی این کادر بزنید و تصویر خود را انتخاب کنید. می‌توانید فایل را روی آن بکشید و رها کنید، یا تصویری را که کپی کرده‌اید با Ctrl+V جای‌گذاری (Paste) کنید. قالب‌های JPG، PNG و WebP پذیرفته می‌شوند.'},
- {chap:'۱ · تصویر',tab:'image',sel:'#useSample',title:'طرح نمونه',text:'اگر فقط می‌خواهید ابزار را امتحان کنید، طرح نمونهٔ لچک‌ترنج را بار کنید. همهٔ تنظیمات روی آن هم کار می‌کند.'},
- {chap:'۱ · تصویر',tab:'image',sel:'#rotR',up:'.row',title:'چرخش و آینه',text:'با دکمه‌های ۹۰ درجه تصویر را بچرخانید و با «آینه» آن را افقی یا عمودی برگردانید. طول فرش همیشه در راستای عمودی نقشه است.'},
- {chap:'۱ · تصویر',tab:'image',sel:'#fine',up:'.field',title:'صاف کردن (Straighten)',text:'اگر عکس کمی کج گرفته شده (مثلاً عکس یک فرش قدیمی)، با این لغزنده زاویه را تا ۴۵ درجه دقیق تنظیم کنید.'},
- {chap:'۱ · تصویر',tab:'image',sel:'#wrap',view:'source',title:'کادر برش (Crop)',text:'کادر سفید را روی تصویر جابه‌جا کنید و با مربع‌های گوشه اندازه‌اش را تغییر دهید. بیرون کادر بکشید تا کادر تازه بسازید. پس از رها کردن، نقشه دوباره ساخته می‌شود.'},
- {chap:'۱ · تصویر',tab:'image',sel:'#cropLock',up:'.group',title:'قفل تناسب',text:'وقتی قفل روشن است، کادر برش همیشه هم‌تناسب با طول و عرض فرش می‌ماند تا تصویر کشیده نشود. «کل تصویر» قفل را برمی‌دارد و همهٔ تصویر را می‌گیرد.'},
- {chap:'۲ · اندازه و رج',tab:'size',sel:'#sizeChips',title:'اندازه‌های رایج',text:'یکی از اندازه‌های سنتی را بزنید: پشتی، زرع‌ونیم، دوزرع، قالیچه، ۶ متری، ۱۲ متری یا کناره.'},
- {chap:'۲ · اندازه و رج',tab:'size',sel:'#widthCm',up:'.group',title:'طول و عرض دلخواه',text:'ابعاد را به سانتی‌متر وارد کنید. دکمهٔ «جابه‌جایی» برای فرش‌های افقی است.'},
- {chap:'۲ · اندازه و رج',tab:'size',sel:'#raj',up:'.field2',title:'رج (Raj)',text:'رج یعنی شمار گره‌ها در یک «گره» (حدود ۷ سانتی‌متر) از عرض فرش. رج بالاتر یعنی فرش ریزبافت‌تر، جزئیات بیشتر و زمان بافت طولانی‌تر. ۲۵ تا ۳۰ برای عشایری، ۳۵ تا ۵۰ برای تبریز و کاشان، ۶۰ به بالا برای نائین و قم.'},
- {chap:'۲ · اندازه و رج',tab:'size',sel:'#gereh',up:'.field2',title:'طول گره (Gereh)',text:'در تبریز رج را در ۷ سانتی‌متر می‌شمارند و در کاشان و اصفهان معمولاً در ۶٫۵ سانتی‌متر. همان واحدی را انتخاب کنید که بافندهٔ شما به کار می‌برد.'},
- {chap:'۲ · اندازه و رج',tab:'size',sel:'#rowRatio',up:'.field',title:'تراکم پود به تار',text:'عدد ۱ یعنی گره‌ها مربعی‌اند. اگر بافنده رج‌ها را در طول فشرده‌تر می‌کوبد، عدد را بیشتر کنید تا شمار رج‌ها درست حساب شود و خانه‌های نقشه کوتاه‌تر شوند.'},
- {chap:'۲ · اندازه و رج',tab:'size',sel:'#specs',title:'مشخصات فنی',text:'اینجا شمار گره در عرض و رج در طول، کل گره‌ها، گره در دسی‌مترمربع، گره در اینچ مربع (KPSI) و اندازهٔ هر گره را می‌بینید.'},
- {chap:'۲ · اندازه و رج',tab:'size',sel:'#estimate',up:'.group',title:'برآورد زمان و پشم',text:'سرعت هر بافنده و شمار بافنده‌ها را وارد کنید تا زمان تقریبی بافت به روز و ماه حساب شود. وزن پشم پرز در هر مترمربع، کل پشم لازم را تعیین می‌کند.'},
- {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#presets',title:'پالت‌های سنتی',text:'پالت یک منطقه را انتخاب کنید: کاشان، تبریز، اصفهان، نائین، کرمان، هریس، قشقایی، بلوچ، قم یا بیجار. همهٔ رنگ‌ها از رنگ‌های رایج رنگرزی فرش ایرانی گرفته شده‌اند.'},
- {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#method',title:'روش انتخاب رنگ',text:'«همهٔ پالت» همهٔ رنگ‌های پالت را به کار می‌برد. «بهترین‌ها از پالت» شبیه‌ترین رنگ‌ها به تصویر را از همان پالت برمی‌دارد. «از کل رنگ‌ها» از میان ۳۲ رنگ سنتی انتخاب می‌کند. «رنگ دقیق تصویر» رنگ‌ها را مستقیم از عکس استخراج می‌کند.'},
- {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#applyPal',up:'.group',title:'شمار رنگ‌ها و ساخت پالت',text:'شمار رنگ‌ها را تعیین کنید و «ساخت پالت» را بزنید. فرش‌های عشایری معمولاً ۶ تا ۸ رنگ دارند و فرش‌های شهری ریزبافت ۱۲ تا ۲۰ رنگ یا بیشتر. هر رنگ یعنی یک کلاف جدا برای بافنده.'},
- {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#dither',up:'.group',title:'نگاشت رنگ و پخش خطا',text:'«فاصلهٔ رنگی» تعیین می‌کند هر نقطهٔ تصویر به کدام رنگ پالت نزدیک‌تر است؛ حالت ادراکی (CIELAB) به چشم انسان نزدیک‌تر است. «پخش خطا» (Dithering) سایه‌ها را با نقطه‌های درهم می‌سازد؛ برای فرش معمولاً خاموش بهتر است.'},
- {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#pal',title:'پالت فعلی',text:'هر ردیف یک رنگ است با کد حرفی، نماد چاپی و درصد کاربرد. نام را ویرایش کنید، با مربع رنگی رنگ را عوض کنید یا با × حذفش کنید. رنگ‌های زیر نیم درصد را می‌توانید یکجا حذف کنید.'},
- {chap:'۴ · پردازش',tab:'filters',sel:'[data-fp="photo"]',up:'.group',title:'تنظیمات آماده',text:'برای شروع سریع یکی را بزنید: «عکس» برای عکس‌های واقعی، «لوگو و طرح تخت» برای طرح‌های ساده، «نقاشی و مینیاتور» برای آثار هنری.'},
- {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="adj.bright"]',up:'.group',title:'رنگ و نور',text:'روشنایی، کنتراست، اشباع رنگ و گاما (Gamma) پیش از رنگ‌گذاری روی تصویر اعمال می‌شوند. افزایش کنتراست و اشباع کمک می‌کند رنگ‌ها جداتر و نقش‌ها خواناتر شوند.'},
- {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="adj.kuwahara"]',up:'.group',title:'ساده‌سازی',text:'«حذف نویز» (Median) دانه‌ها و لکه‌های ریز را پاک می‌کند. «نقاشی‌گون» (Kuwahara) سطح‌های یکدست می‌سازد و لبه‌ها را نگه می‌دارد؛ مؤثرترین ابزار برای تبدیل عکس به نقشه است. «نرم‌کردن» و «تیزکردن» جزئیات را کم یا زیاد می‌کنند.'},
- {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="clean.despeckle"]',up:'.group',title:'پاک‌سازی پس از رنگ‌گذاری',text:'«حذف گره‌های تک» (Despeckle) گره‌هایی را که تنها و بی‌همسایهٔ هم‌رنگ‌اند برمی‌دارد، چون بافتنشان سخت است و در فرش دیده نمی‌شوند. «خط دور» (Outline) دور نقش‌ها یک ردیف گرهٔ تیره می‌گذارد، مثل قلم‌گیری در نقشه‌های ایرانی.'},
- {chap:'۵ · طرح',tab:'pattern',sel:'#sym',title:'قرینه‌سازی (Symmetry)',text:'«لچکی» یک‌چهارم بالای تصویر را در چهار جهت قرینه می‌کند، مانند فرش‌های لچک‌ترنج. «نیمه» فقط چپ و راست یا بالا و پایین را قرینه می‌کند.'},
- {chap:'۵ · طرح',tab:'pattern',sel:'[data-bind="border.on"]',up:'.group',title:'حاشیه (Border)',text:'یک حاشیه با دو باریکه (Guard) بیرونی و درونی و یک حاشیهٔ اصلی دور فرش بگذارید. پهنا را به گره تعیین کنید، نقش (دندانه‌ای، کنگره‌ای، شطرنجی، اریب یا گل‌های پی‌درپی) و سه رنگ آن را انتخاب کنید.'},
- {chap:'۵ · طرح',tab:'pattern',sel:'[data-bind="abrash"]',up:'.group',title:'ابرش (Abrash)',text:'ابرش تغییر ملایم رنگ در رج‌هاست که از تفاوت دسته‌های رنگرزی پشم پیدا می‌شود. فقط در نمای «فرش» دیده می‌شود تا ظاهر فرش واقعی را ببینید.'},
- {chap:'۶ · نما',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
- {chap:'۶ · نما',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
- {chap:'۶ · نما',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
- {chap:'۷ · خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'اندازهٔ کاغذ و اندازهٔ هر خانه را انتخاب کنید. نقشه به چند برگه تقسیم می‌شود و شمار برگه‌ها زیر همین بخش نوشته می‌شود. برای فرش‌های قرینه می‌توانید فقط نیمه یا یک‌چهارم نقشه را چاپ کنید.'},
- {chap:'۷ · خروجی',tab:'export',sel:'#rtl',up:'.check',title:'جهت شماره‌گذاری',text:'اگر بافنده از راست به چپ گره می‌زند این گزینه را روشن نگه دارید؛ شمارهٔ گره‌ها، برگه‌ها و رج‌خوان همه از راست شروع می‌شوند. «نماد در خانه‌ها» برای چاپ سیاه‌وسفید لازم است.'},
- {chap:'۷ · خروجی',tab:'export',sel:'#expPdf',title:'ساخت PDF',text:'این دکمه فایل PDF می‌سازد: یک برگهٔ راهنما با رنگ‌ها، شمار گره و پشم هر رنگ و نقشهٔ برگه‌ها، و پس از آن برگه‌های نقشه با شمارهٔ رج و گره. فایل را ذخیره و چاپ کنید.'},
- {chap:'۷ · خروجی',tab:'export',sel:'#expPng',up:'.group',title:'فایل‌های دیگر',text:'تصویر کامل نقشه، پیش‌نمایش فرش برای سفارش‌دهنده، تعلیم رج‌به‌رج به صورت متن، فهرست رنگ و پشم و دادهٔ خام نقشه را هم می‌توانید جداگانه ذخیره کنید.'},
- {chap:'۷ · خروجی',tab:'export',sel:'#saveProj',up:'.group',title:'پشتیبان به‌صورت فایل',text:'پروژه را به‌صورت یک فایل ذخیره کنید تا روی رایانهٔ دیگر بازش کنید یا نسخهٔ پشتیبان داشته باشید. همهٔ تنظیمات، از برش و رنگ‌ها تا تنظیمات خروجی، در آن هست.'},
+ {chap:'۱، تصویر',tab:'image',sel:'#projGroup',title:'پروژه‌های من',text:'هر تغییری که می‌دهید خودکار در همین مرورگر ذخیره می‌شود؛ اگر صفحه را ببندید، دفعهٔ بعد کار از همان‌جا ادامه پیدا می‌کند. برای نگه داشتن چند طرح، نامی بنویسید و «ذخیره» را بزنید. «نسخهٔ جدید» یک نسخهٔ جدا می‌سازد. فهرست پایین همهٔ پروژه‌ها را با تصویر کوچک نشان می‌دهد.'},
+ {chap:'۱، تصویر',tab:'image',sel:'#drop',title:'بارگذاری تصویر',text:'روی این کادر بزنید و تصویر خود را انتخاب کنید. می‌توانید فایل را روی آن بکشید و رها کنید، یا تصویری را که کپی کرده‌اید با Ctrl+V جای‌گذاری (Paste) کنید. قالب‌های JPG، PNG و WebP پذیرفته می‌شوند.'},
+ {chap:'۱، تصویر',tab:'image',sel:'#galleryGroup',title:'کتابخانهٔ طرح‌های نمونه',text:'به‌جای تصویر خودتان می‌توانید یکی از ۱۶ طرح سنتی را بار کنید: لچک‌ترنج کاشان و تبریز، شاه‌عباسی اصفهان، هراتی بیجار، بته‌جقهٔ سرابند، گل ترکمن، محرابی بلوچ، گبه و دیگران. با دکمه‌های «منطقه» و «نوع طرح» فهرست را فیلتر کنید. هر طرح، ابعاد، رج، پالت، قرینه و حاشیهٔ مناسب خودش را تنظیم می‌کند.'},
+ {chap:'۱، تصویر',tab:'image',sel:'#rotR',up:'.row',title:'چرخش و آینه',text:'با دکمه‌های ۹۰ درجه تصویر را بچرخانید و با «آینه» آن را افقی یا عمودی برگردانید. طول فرش همیشه در راستای عمودی نقشه است.'},
+ {chap:'۱، تصویر',tab:'image',sel:'#fine',up:'.field',title:'صاف کردن (Straighten)',text:'اگر عکس کمی کج گرفته شده (مثلاً عکس یک فرش قدیمی)، با این لغزنده زاویه را تا ۴۵ درجه دقیق تنظیم کنید.'},
+ {chap:'۱، تصویر',tab:'image',sel:'#wrap',view:'source',title:'کادر برش (Crop)',text:'کادر سفید را روی تصویر جابه‌جا کنید و با مربع‌های گوشه اندازه‌اش را تغییر دهید. بیرون کادر بکشید تا کادر تازه بسازید. پس از رها کردن، نقشه دوباره ساخته می‌شود.'},
+ {chap:'۱، تصویر',tab:'image',sel:'#cropLock',up:'.group',title:'قفل تناسب',text:'وقتی قفل روشن است، کادر برش همیشه هم‌تناسب با طول و عرض فرش می‌ماند تا تصویر کشیده نشود. «کل تصویر» قفل را برمی‌دارد و همهٔ تصویر را می‌گیرد.'},
+ {chap:'۲، اندازه و رج',tab:'size',sel:'#sizeChips',title:'اندازه‌های رایج',text:'یکی از اندازه‌های سنتی را بزنید: پشتی، زرع‌ونیم، دوزرع، قالیچه، ۶ متری، ۱۲ متری یا کناره.'},
+ {chap:'۲، اندازه و رج',tab:'size',sel:'#widthCm',up:'.group',title:'طول و عرض دلخواه',text:'ابعاد را به سانتی‌متر وارد کنید. دکمهٔ «جابه‌جایی» برای فرش‌های افقی است.'},
+ {chap:'۲، اندازه و رج',tab:'size',sel:'#raj',up:'.field2',title:'رج (Raj)',text:'رج یعنی شمار گره‌ها در یک «گره» (حدود ۷ سانتی‌متر) از عرض فرش. رج بالاتر یعنی فرش ریزبافت‌تر، جزئیات بیشتر و زمان بافت طولانی‌تر. ۲۵ تا ۳۰ برای عشایری، ۳۵ تا ۵۰ برای تبریز و کاشان، ۶۰ به بالا برای نائین و قم.'},
+ {chap:'۲، اندازه و رج',tab:'size',sel:'#gereh',up:'.field2',title:'طول گره (Gereh)',text:'در تبریز رج را در ۷ سانتی‌متر می‌شمارند و در کاشان و اصفهان معمولاً در ۶٫۵ سانتی‌متر. همان واحدی را انتخاب کنید که بافندهٔ شما به کار می‌برد.'},
+ {chap:'۲، اندازه و رج',tab:'size',sel:'#rowRatio',up:'.field',title:'تراکم پود به تار',text:'عدد ۱ یعنی گره‌ها مربعی‌اند. اگر بافنده رج‌ها را در طول فشرده‌تر می‌کوبد، عدد را بیشتر کنید تا شمار رج‌ها درست حساب شود و خانه‌های نقشه کوتاه‌تر شوند.'},
+ {chap:'۲، اندازه و رج',tab:'size',sel:'#specs',title:'مشخصات فنی',text:'اینجا شمار گره در عرض و رج در طول، کل گره‌ها، گره در دسی‌مترمربع، گره در اینچ مربع (KPSI) و اندازهٔ هر گره را می‌بینید.'},
+ {chap:'۲، اندازه و رج',tab:'size',sel:'#estimate',up:'.group',title:'برآورد زمان، پشم و هزینه',text:'سرعت هر بافنده و شمار بافنده‌ها را وارد کنید تا زمان تقریبی بافت به روز و ماه حساب شود. وزن پشم پرز در هر مترمربع، کل پشم لازم را تعیین می‌کند. اگر دستمزد هر ۱۰۰۰ گره و قیمت پشم را بنویسید، هزینهٔ کل فرش هم برآورد می‌شود.'},
+ {chap:'۳، رنگ‌ها',tab:'colors',sel:'#presets',title:'پالت‌های سنتی',text:'پالت یک منطقه را انتخاب کنید: کاشان، تبریز، اصفهان، نائین، کرمان، هریس، قشقایی، بلوچ، قم یا بیجار. همهٔ رنگ‌ها از رنگ‌های رایج رنگرزی فرش ایرانی گرفته شده‌اند.'},
+ {chap:'۳، رنگ‌ها',tab:'colors',sel:'#method',title:'روش انتخاب رنگ',text:'«همهٔ پالت» همهٔ رنگ‌های پالت را به کار می‌برد. «بهترین‌ها از پالت» شبیه‌ترین رنگ‌ها به تصویر را از همان پالت برمی‌دارد. «از کل رنگ‌ها» از میان ۳۲ رنگ سنتی انتخاب می‌کند. «رنگ دقیق تصویر» رنگ‌ها را مستقیم از عکس استخراج می‌کند.'},
+ {chap:'۳، رنگ‌ها',tab:'colors',sel:'#applyPal',up:'.group',title:'شمار رنگ‌ها و ساخت پالت',text:'شمار رنگ‌ها را تعیین کنید و «ساخت پالت» را بزنید. فرش‌های عشایری معمولاً ۶ تا ۸ رنگ دارند و فرش‌های شهری ریزبافت ۱۲ تا ۲۰ رنگ یا بیشتر. هر رنگ یعنی یک کلاف جدا برای بافنده.'},
+ {chap:'۳، رنگ‌ها',tab:'colors',sel:'#dither',up:'.group',title:'نگاشت رنگ و پخش خطا',text:'«فاصلهٔ رنگی» تعیین می‌کند هر نقطهٔ تصویر به کدام رنگ پالت نزدیک‌تر است؛ حالت ادراکی (CIELAB) به چشم انسان نزدیک‌تر است. «پخش خطا» (Dithering) سایه‌ها را با نقطه‌های درهم می‌سازد؛ برای فرش معمولاً خاموش بهتر است.'},
+ {chap:'۳، رنگ‌ها',tab:'colors',sel:'#pal',title:'پالت فعلی',text:'هر ردیف یک رنگ است با کد حرفی، نماد چاپی و درصد کاربرد. نام را ویرایش کنید، با مربع رنگی رنگ را عوض کنید یا با × حذفش کنید. رنگ‌های زیر نیم درصد را می‌توانید یکجا حذف کنید.'},
+ {chap:'۳، رنگ‌ها',tab:'colors',sel:'#analysisGroup',title:'تحلیل گره‌ها',text:'این بخش نشان می‌دهد نقشه چقدر بافتنی است: میانگین تعویض رنگ در هر رج، طول رشته‌های هم‌رنگ، شمار گره‌های تک و میزان قرینگی. سختی بافت از روی همین‌ها تعیین می‌شود. اگر دو رنگ پالت در پشم تقریباً یکسان دیده شوند، با دکمهٔ «ادغام» یکی‌شان کنید.'},
+ {chap:'۴، پردازش',tab:'filters',sel:'[data-fp="photo"]',up:'.group',title:'تنظیمات آماده',text:'برای شروع سریع یکی را بزنید: «عکس» برای عکس‌های واقعی، «لوگو و طرح تخت» برای طرح‌های ساده، «نقاشی و مینیاتور» برای آثار هنری.'},
+ {chap:'۴، پردازش',tab:'filters',sel:'[data-bind="adj.bright"]',up:'.group',title:'رنگ و نور',text:'روشنایی، کنتراست، اشباع رنگ و گاما (Gamma) پیش از رنگ‌گذاری روی تصویر اعمال می‌شوند. افزایش کنتراست و اشباع کمک می‌کند رنگ‌ها جداتر و نقش‌ها خواناتر شوند.'},
+ {chap:'۴، پردازش',tab:'filters',sel:'[data-bind="adj.kuwahara"]',up:'.group',title:'ساده‌سازی',text:'«حذف نویز» (Median) دانه‌ها و لکه‌های ریز را پاک می‌کند. «نقاشی‌گون» (Kuwahara) سطح‌های یکدست می‌سازد و لبه‌ها را نگه می‌دارد؛ مؤثرترین ابزار برای تبدیل عکس به نقشه است. «نرم‌کردن» و «تیزکردن» جزئیات را کم یا زیاد می‌کنند.'},
+ {chap:'۴، پردازش',tab:'filters',sel:'[data-bind="clean.despeckle"]',up:'.group',title:'پاک‌سازی پس از رنگ‌گذاری',text:'«حذف گره‌های تک» (Despeckle) گره‌هایی را که تنها و بی‌همسایهٔ هم‌رنگ‌اند برمی‌دارد، چون بافتنشان سخت است و در فرش دیده نمی‌شوند. «خط دور» (Outline) دور نقش‌ها یک ردیف گرهٔ تیره می‌گذارد، مثل قلم‌گیری در نقشه‌های ایرانی.'},
+ {chap:'۵، طرح',tab:'pattern',sel:'#sym',title:'قرینه‌سازی (Symmetry)',text:'«لچکی» یک‌چهارم بالای تصویر را در چهار جهت قرینه می‌کند، مانند فرش‌های لچک‌ترنج. «نیمه» فقط چپ و راست یا بالا و پایین را قرینه می‌کند.'},
+ {chap:'۵، طرح',tab:'pattern',sel:'#repeatGroup',title:'تکرار نقش (Repeat)',text:'برای طرح‌های افشان و خشتی، بخشی از تصویر را برش بزنید و تعیین کنید چند بار در عرض و طول تکرار شود. با «قرینه کردن خانه‌های یک‌درمیان» درزهای بین تکرارها پنهان می‌شود.'},
+ {chap:'۵، طرح',tab:'pattern',sel:'[data-bind="border.on"]',up:'.group',title:'حاشیه (Border)',text:'یک حاشیه با دو باریکه (Guard) بیرونی و درونی و یک حاشیهٔ اصلی دور فرش بگذارید. پهنا را به گره تعیین کنید، نقش (دندانه‌ای، کنگره‌ای، شطرنجی، اریب یا گل‌های پی‌درپی) و سه رنگ آن را انتخاب کنید.'},
+ {chap:'۵، طرح',tab:'pattern',sel:'[data-bind="abrash"]',up:'.group',title:'ابرش (Abrash)',text:'ابرش تغییر ملایم رنگ در رج‌هاست که از تفاوت دسته‌های رنگرزی پشم پیدا می‌شود. فقط در نمای «فرش» دیده می‌شود تا ظاهر فرش واقعی را ببینید.'},
+ {chap:'۶، نما',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
+ {chap:'۶، نما',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
+ {chap:'۶، نما',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
+ {chap:'۷، خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'اندازهٔ کاغذ و اندازهٔ هر خانه را انتخاب کنید. نقشه به چند برگه تقسیم می‌شود و شمار برگه‌ها زیر همین بخش نوشته می‌شود. برای فرش‌های قرینه می‌توانید فقط نیمه یا یک‌چهارم نقشه را چاپ کنید.'},
+ {chap:'۷، خروجی',tab:'export',sel:'#rtl',up:'.check',title:'جهت شماره‌گذاری',text:'اگر بافنده از راست به چپ گره می‌زند این گزینه را روشن نگه دارید؛ شمارهٔ گره‌ها، برگه‌ها و رج‌خوان همه از راست شروع می‌شوند. «نماد در خانه‌ها» برای چاپ سیاه‌وسفید لازم است.'},
+ {chap:'۷، خروجی',tab:'export',sel:'#expPdf',title:'ساخت PDF',text:'این دکمه فایل PDF می‌سازد: یک برگهٔ راهنما با رنگ‌ها، شمار گره و پشم هر رنگ و نقشهٔ برگه‌ها، و پس از آن برگه‌های نقشه با شمارهٔ رج و گره. فایل را ذخیره و چاپ کنید.'},
+ {chap:'۷، خروجی',tab:'export',sel:'#expPng',up:'.group',title:'فایل‌های دیگر',text:'تصویر کامل نقشه، پیش‌نمایش فرش برای سفارش‌دهنده، تعلیم رج‌به‌رج به صورت متن، فهرست رنگ و پشم و دادهٔ خام نقشه را هم می‌توانید جداگانه ذخیره کنید.'},
+ {chap:'۷، خروجی',tab:'export',sel:'#saveProj',up:'.group',title:'پشتیبان به‌صورت فایل',text:'پروژه را به‌صورت یک فایل ذخیره کنید تا روی رایانهٔ دیگر بازش کنید یا نسخهٔ پشتیبان داشته باشید. همهٔ تنظیمات، از برش و رنگ‌ها تا تنظیمات خروجی، در آن هست.'},
  {chap:'پایان',title:'آماده‌اید!',text:'حالا تصویر خودتان را بارگذاری کنید. کارتان خودکار ذخیره می‌شود. هر وقت خواستید، این راهنما را با دکمهٔ «راهنمای گام‌به‌گام» در بالای صفحه دوباره ببینید.'}
 ];
 let tourI=-1;
@@ -1413,9 +1673,9 @@ document.addEventListener('scroll',()=>tourI>=0&&tourPlace(),true);
 
 /* ---------- boot ---------- */
 document.documentElement.dir='rtl';document.documentElement.lang='fa';
-renderLib();setSource(makeSample(),'طرح نمونه');
+renderLib();
 palette=PRESETS[0].ids.map(id=>({...LIBM[id]}));sortByLum(palette);autoBorderColors();
-syncControls();renderColorSelects();dirty=1;run();
+loadSample(SAMPLES[0],true);renderColorSelects();
 S.method='fitPreset';syncControls();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 (async()=>{try{const a=await DB.get('autosave');if(a){await restore(a);curProj={id:a.projId||null,name:a.projId?a.name:''};$('#projName').value=curProj.name;toast('کار قبلی شما بازیابی شد.');$('#saveState').textContent='بازیابی شد';$('#saveState').classList.remove('dirty')}}catch(e){console.error(e)}booted=true;renderProjects()})();
