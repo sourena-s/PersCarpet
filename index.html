@@ -132,6 +132,23 @@ input[type=number]{direction:ltr;text-align:right}
 .exp:last-child{border-bottom:0}
 .exp b{font-size:13px} .exp p{margin:0;font-size:12px;color:var(--muted)}
 .ltr{direction:ltr;unicode-bidi:isolate}
+/* guided tour */
+.tour-block{position:fixed;inset:0;z-index:40}
+.tour-hl{position:fixed;z-index:41;border:3px solid #FFD43B;border-radius:7px;box-shadow:0 0 0 9999px rgba(8,10,18,.58),0 0 18px 4px rgba(255,212,59,.75);pointer-events:none;transition:left .25s,top .25s,width .25s,height .25s}
+.tour-arrow{position:fixed;z-index:43;width:48px;height:56px;pointer-events:none;transition:left .25s,top .25s}
+.tour-arrow svg{width:48px;height:56px;display:block;animation:bob 1s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))}
+.tour-arrow.up{transform:rotate(180deg)}
+@keyframes bob{50%{transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){.tour-arrow svg{animation:none}.tour-hl,.tour-arrow{transition:none}}
+.tour-card{position:fixed;z-index:44;width:min(380px,calc(100vw - 32px));background:var(--panel);color:var(--ink);border:1px solid var(--line);border-top:4px solid #FFD43B;border-radius:8px;padding:16px;box-shadow:0 12px 32px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:10px}
+.tour-card h4{margin:0;font-size:16px;font-weight:800;text-wrap:balance}
+.tour-card p{margin:0;font-size:13.5px;line-height:1.85}
+.tour-card .tstep{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tour-card .tbar{height:3px;background:var(--soft);border-radius:2px;overflow:hidden}
+.tour-card .tbar i{display:block;height:100%;background:#E0B400}
+.tour-nav{display:flex;gap:8px;align-items:center}
+.tour-nav .sp{flex:1}
+.tour-chap{display:inline-block;font-size:11px;font-weight:700;color:#7A5B00;background:#FFF1B8;border-radius:999px;padding:1px 10px;align-self:flex-start}
 </style>
 </head>
 <body>
@@ -139,6 +156,7 @@ input[type=number]{direction:ltr;text-align:right}
   <header class="top">
     <div class="brand"><h1>نقشه<span>‌کش</span></h1><small>طراحی نقشهٔ فرش دستباف از روی تصویر</small></div>
     <div class="chips" id="chips"></div>
+    <button class="btn" id="tourBtn" style="border-color:#E0B400">راهنمای گام‌به‌گام ✦</button>
   </header>
 
   <div class="work">
@@ -377,6 +395,23 @@ input[type=number]{direction:ltr;text-align:right}
       </div>
       <div class="status" id="status"></div>
     </main>
+  </div>
+</div>
+<div id="tour" dir="rtl" hidden>
+  <div class="tour-block" id="tourBlock"></div>
+  <div class="tour-hl" id="tourHl"></div>
+  <div class="tour-arrow" id="tourArrow" aria-hidden="true"><svg viewBox="0 0 48 56"><path d="M17 2h14v28h12L24 53 5 30h12z" fill="#FFD43B" stroke="#1A1A1A" stroke-width="2.5" stroke-linejoin="round"/></svg></div>
+  <div class="tour-card" id="tourCard" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+    <span class="tour-chap" id="tourChap"></span>
+    <h4 id="tourTitle"></h4>
+    <p id="tourText"></p>
+    <div class="tbar"><i id="tourBar"></i></div>
+    <div class="tour-nav">
+      <span class="tstep" id="tourStep"></span><span class="sp"></span>
+      <button class="btn" id="tourSkip">بستن</button>
+      <button class="btn" id="tourPrev">قبلی</button>
+      <button class="btn primary" id="tourNext">بعدی</button>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast" dir="rtl" hidden></div>
@@ -1277,12 +1312,96 @@ let firstRO=true;new ResizeObserver(()=>{if(needFit||firstRO){const r=view.getBo
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redraw);
 new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
+
+/* ---------- guided tour ---------- */
+const TOUR=[
+ {chap:'آغاز',title:'به نقشه‌کش خوش آمدید',text:'این راهنما گام‌به‌گام نشان می‌دهد چطور یک تصویر را به نقشهٔ قابل بافت تبدیل کنید: بارگذاری تصویر، تنظیم اندازه و رج، انتخاب رنگ‌ها، پردازش تصویر و در پایان خروجی چاپی برای بافنده. پیکان زرد هر بار بخش مورد نظر را نشان می‌دهد. با کلیدهای جهت‌نما هم می‌توانید جابه‌جا شوید.'},
+ {chap:'۱ · تصویر',tab:'image',sel:'#drop',title:'بارگذاری تصویر',text:'روی این کادر بزنید و تصویر خود را انتخاب کنید. می‌توانید فایل را روی آن بکشید و رها کنید، یا تصویری را که کپی کرده‌اید با Ctrl+V جای‌گذاری (Paste) کنید. قالب‌های JPG، PNG و WebP پذیرفته می‌شوند.'},
+ {chap:'۱ · تصویر',tab:'image',sel:'#useSample',title:'طرح نمونه',text:'اگر فقط می‌خواهید ابزار را امتحان کنید، طرح نمونهٔ لچک‌ترنج را بار کنید. همهٔ تنظیمات روی آن هم کار می‌کند.'},
+ {chap:'۱ · تصویر',tab:'image',sel:'#rotR',up:'.row',title:'چرخش و آینه',text:'با دکمه‌های ۹۰ درجه تصویر را بچرخانید و با «آینه» آن را افقی یا عمودی برگردانید. طول فرش همیشه در راستای عمودی نقشه است.'},
+ {chap:'۱ · تصویر',tab:'image',sel:'#fine',up:'.field',title:'صاف کردن (Straighten)',text:'اگر عکس کمی کج گرفته شده (مثلاً عکس یک فرش قدیمی)، با این لغزنده زاویه را تا ۴۵ درجه دقیق تنظیم کنید.'},
+ {chap:'۱ · تصویر',tab:'image',sel:'#wrap',view:'source',title:'کادر برش (Crop)',text:'کادر سفید را روی تصویر جابه‌جا کنید و با مربع‌های گوشه اندازه‌اش را تغییر دهید. بیرون کادر بکشید تا کادر تازه بسازید. پس از رها کردن، نقشه دوباره ساخته می‌شود.'},
+ {chap:'۱ · تصویر',tab:'image',sel:'#cropLock',up:'.group',title:'قفل تناسب',text:'وقتی قفل روشن است، کادر برش همیشه هم‌تناسب با طول و عرض فرش می‌ماند تا تصویر کشیده نشود. «کل تصویر» قفل را برمی‌دارد و همهٔ تصویر را می‌گیرد.'},
+ {chap:'۲ · اندازه و رج',tab:'size',sel:'#sizeChips',title:'اندازه‌های رایج',text:'یکی از اندازه‌های سنتی را بزنید: پشتی، زرع‌ونیم، دوزرع، قالیچه، ۶ متری، ۱۲ متری یا کناره.'},
+ {chap:'۲ · اندازه و رج',tab:'size',sel:'#widthCm',up:'.group',title:'طول و عرض دلخواه',text:'ابعاد را به سانتی‌متر وارد کنید. دکمهٔ «جابه‌جایی» برای فرش‌های افقی است.'},
+ {chap:'۲ · اندازه و رج',tab:'size',sel:'#raj',up:'.field2',title:'رج (Raj)',text:'رج یعنی شمار گره‌ها در یک «گره» (حدود ۷ سانتی‌متر) از عرض فرش. رج بالاتر یعنی فرش ریزبافت‌تر، جزئیات بیشتر و زمان بافت طولانی‌تر. ۲۵ تا ۳۰ برای عشایری، ۳۵ تا ۵۰ برای تبریز و کاشان، ۶۰ به بالا برای نائین و قم.'},
+ {chap:'۲ · اندازه و رج',tab:'size',sel:'#gereh',up:'.field2',title:'طول گره (Gereh)',text:'در تبریز رج را در ۷ سانتی‌متر می‌شمارند و در کاشان و اصفهان معمولاً در ۶٫۵ سانتی‌متر. همان واحدی را انتخاب کنید که بافندهٔ شما به کار می‌برد.'},
+ {chap:'۲ · اندازه و رج',tab:'size',sel:'#rowRatio',up:'.field',title:'تراکم پود به تار',text:'عدد ۱ یعنی گره‌ها مربعی‌اند. اگر بافنده رج‌ها را در طول فشرده‌تر می‌کوبد، عدد را بیشتر کنید تا شمار رج‌ها درست حساب شود و خانه‌های نقشه کوتاه‌تر شوند.'},
+ {chap:'۲ · اندازه و رج',tab:'size',sel:'#specs',title:'مشخصات فنی',text:'اینجا شمار گره در عرض و رج در طول، کل گره‌ها، گره در دسی‌مترمربع، گره در اینچ مربع (KPSI) و اندازهٔ هر گره را می‌بینید.'},
+ {chap:'۲ · اندازه و رج',tab:'size',sel:'#estimate',up:'.group',title:'برآورد زمان و پشم',text:'سرعت هر بافنده و شمار بافنده‌ها را وارد کنید تا زمان تقریبی بافت به روز و ماه حساب شود. وزن پشم پرز در هر مترمربع، کل پشم لازم را تعیین می‌کند.'},
+ {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#presets',title:'پالت‌های سنتی',text:'پالت یک منطقه را انتخاب کنید: کاشان، تبریز، اصفهان، نائین، کرمان، هریس، قشقایی، بلوچ، قم یا بیجار. همهٔ رنگ‌ها از رنگ‌های رایج رنگرزی فرش ایرانی گرفته شده‌اند.'},
+ {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#method',title:'روش انتخاب رنگ',text:'«همهٔ پالت» همهٔ رنگ‌های پالت را به کار می‌برد. «بهترین‌ها از پالت» شبیه‌ترین رنگ‌ها به تصویر را از همان پالت برمی‌دارد. «از کل رنگ‌ها» از میان ۳۲ رنگ سنتی انتخاب می‌کند. «رنگ دقیق تصویر» رنگ‌ها را مستقیم از عکس استخراج می‌کند.'},
+ {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#applyPal',up:'.group',title:'شمار رنگ‌ها و ساخت پالت',text:'شمار رنگ‌ها را تعیین کنید و «ساخت پالت» را بزنید. فرش‌های عشایری معمولاً ۶ تا ۸ رنگ دارند و فرش‌های شهری ریزبافت ۱۲ تا ۲۰ رنگ یا بیشتر. هر رنگ یعنی یک کلاف جدا برای بافنده.'},
+ {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#dither',up:'.group',title:'نگاشت رنگ و پخش خطا',text:'«فاصلهٔ رنگی» تعیین می‌کند هر نقطهٔ تصویر به کدام رنگ پالت نزدیک‌تر است؛ حالت ادراکی (CIELAB) به چشم انسان نزدیک‌تر است. «پخش خطا» (Dithering) سایه‌ها را با نقطه‌های درهم می‌سازد؛ برای فرش معمولاً خاموش بهتر است.'},
+ {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#pal',title:'پالت فعلی',text:'هر ردیف یک رنگ است با کد حرفی، نماد چاپی و درصد کاربرد. روی خانهٔ رنگ بزنید تا رنگ قلم شود، نام را ویرایش کنید، با مربع رنگی رنگ را عوض کنید یا با × حذفش کنید. رنگ‌های زیر نیم درصد را می‌توانید یکجا حذف کنید.'},
+ {chap:'۴ · پردازش',tab:'filters',sel:'[data-fp="photo"]',up:'.group',title:'تنظیمات آماده',text:'برای شروع سریع یکی را بزنید: «عکس» برای عکس‌های واقعی، «لوگو و طرح تخت» برای طرح‌های ساده، «نقاشی و مینیاتور» برای آثار هنری.'},
+ {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="adj.bright"]',up:'.group',title:'رنگ و نور',text:'روشنایی، کنتراست، اشباع رنگ و گاما (Gamma) پیش از رنگ‌گذاری روی تصویر اعمال می‌شوند. افزایش کنتراست و اشباع کمک می‌کند رنگ‌ها جداتر و نقش‌ها خواناتر شوند.'},
+ {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="adj.kuwahara"]',up:'.group',title:'ساده‌سازی',text:'«حذف نویز» (Median) دانه‌ها و لکه‌های ریز را پاک می‌کند. «نقاشی‌گون» (Kuwahara) سطح‌های یکدست می‌سازد و لبه‌ها را نگه می‌دارد؛ مؤثرترین ابزار برای تبدیل عکس به نقشه است. «نرم‌کردن» و «تیزکردن» جزئیات را کم یا زیاد می‌کنند.'},
+ {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="clean.despeckle"]',up:'.group',title:'پاک‌سازی پس از رنگ‌گذاری',text:'«حذف گره‌های تک» (Despeckle) گره‌هایی را که تنها و بی‌همسایهٔ هم‌رنگ‌اند برمی‌دارد، چون بافتنشان سخت است و در فرش دیده نمی‌شوند. «خط دور» (Outline) دور نقش‌ها یک ردیف گرهٔ تیره می‌گذارد، مثل قلم‌گیری در نقشه‌های ایرانی.'},
+ {chap:'۵ · طرح',tab:'pattern',sel:'#sym',title:'قرینه‌سازی (Symmetry)',text:'«لچکی» یک‌چهارم بالای تصویر را در چهار جهت قرینه می‌کند، مانند فرش‌های لچک‌ترنج. «نیمه» فقط چپ و راست یا بالا و پایین را قرینه می‌کند.'},
+ {chap:'۵ · طرح',tab:'pattern',sel:'[data-bind="border.on"]',up:'.group',title:'حاشیه (Border)',text:'یک حاشیه با دو باریکه (Guard) بیرونی و درونی و یک حاشیهٔ اصلی دور فرش بگذارید. پهنا را به گره تعیین کنید، نقش (دندانه‌ای، کنگره‌ای، شطرنجی، اریب یا گل‌های پی‌درپی) و سه رنگ آن را انتخاب کنید.'},
+ {chap:'۵ · طرح',tab:'pattern',sel:'[data-bind="abrash"]',up:'.group',title:'ابرش (Abrash)',text:'ابرش تغییر ملایم رنگ در رج‌هاست که از تفاوت دسته‌های رنگرزی پشم پیدا می‌شود. فقط در نمای «فرش» دیده می‌شود تا ظاهر فرش واقعی را ببینید.'},
+ {chap:'۶ · نما و ویرایش',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
+ {chap:'۶ · نما و ویرایش',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
+ {chap:'۶ · نما و ویرایش',sel:'#toolSeg',title:'ویرایش دستی گره‌ها',text:'«قلم» گره‌ها را با رنگ انتخاب‌شده رنگ می‌کند، «سطل» یک ناحیهٔ هم‌رنگ را یکجا پر می‌کند و «رنگ‌بردار» رنگ یک گره را برمی‌دارد. با Ctrl+Z ویرایش را برگردانید.'},
+ {chap:'۶ · نما و ویرایش',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
+ {chap:'۷ · خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'اندازهٔ کاغذ و اندازهٔ هر خانه را انتخاب کنید. نقشه به چند برگه تقسیم می‌شود و شمار برگه‌ها زیر همین بخش نوشته می‌شود. برای فرش‌های قرینه می‌توانید فقط نیمه یا یک‌چهارم نقشه را چاپ کنید.'},
+ {chap:'۷ · خروجی',tab:'export',sel:'#rtl',up:'.check',title:'جهت شماره‌گذاری',text:'اگر بافنده از راست به چپ گره می‌زند این گزینه را روشن نگه دارید؛ شمارهٔ گره‌ها، برگه‌ها و رج‌خوان همه از راست شروع می‌شوند. «نماد در خانه‌ها» برای چاپ سیاه‌وسفید لازم است.'},
+ {chap:'۷ · خروجی',tab:'export',sel:'#expPdf',title:'ساخت PDF',text:'این دکمه فایل PDF می‌سازد: یک برگهٔ راهنما با رنگ‌ها، شمار گره و پشم هر رنگ و نقشهٔ برگه‌ها، و پس از آن برگه‌های نقشه با شمارهٔ رج و گره. فایل را ذخیره و چاپ کنید.'},
+ {chap:'۷ · خروجی',tab:'export',sel:'#expPng',up:'.group',title:'فایل‌های دیگر',text:'تصویر کامل نقشه، پیش‌نمایش فرش برای سفارش‌دهنده، تعلیم رج‌به‌رج به صورت متن، فهرست رنگ و پشم و دادهٔ خام نقشه را هم می‌توانید جداگانه ذخیره کنید.'},
+ {chap:'۷ · خروجی',tab:'export',sel:'#saveProj',up:'.group',title:'ذخیرهٔ پروژه',text:'پروژه را ذخیره کنید تا بعداً با همهٔ تنظیمات و ویرایش‌های دستی دوباره بازش کنید.'},
+ {chap:'پایان',title:'آماده‌اید!',text:'حالا تصویر خودتان را بارگذاری کنید. هر وقت خواستید، این راهنما را با دکمهٔ «راهنمای گام‌به‌گام» در بالای صفحه دوباره ببینید.'}
+];
+let tourI=-1;
+function tourTarget(st){if(!st.sel)return null;let el=document.querySelector(st.sel);if(el&&st.up)el=el.closest(st.up)||el;return el&&el.getClientRects().length?el:null}
+function tourGo(i){
+  tourI=Math.max(0,Math.min(TOUR.length-1,i));const st=TOUR[tourI];
+  if(st.tab){const t=document.querySelector(`.tab[data-tab="${st.tab}"]`);if(t&&t.getAttribute('aria-selected')!=='true')t.click()}
+  if(st.view&&S.view!==st.view)setView(st.view);
+  $('#tourChap').textContent=st.chap;$('#tourTitle').textContent=st.title;$('#tourText').textContent=st.text;
+  $('#tourStep').textContent=`${fa(tourI+1)} از ${fa(TOUR.length)}`;$('#tourBar').style.width=((tourI+1)/TOUR.length*100)+'%';
+  $('#tourPrev').disabled=tourI===0;$('#tourNext').textContent=tourI===TOUR.length-1?'پایان':'بعدی';
+  const el=tourTarget(st);if(el)el.scrollIntoView({block:'center',inline:'nearest'});
+  requestAnimationFrame(()=>requestAnimationFrame(tourPlace));
+}
+function tourPlace(){
+  if(tourI<0)return;const st=TOUR[tourI],el=tourTarget(st),hl=$('#tourHl'),ar=$('#tourArrow'),card=$('#tourCard');
+  const vw=innerWidth,vh=innerHeight,cw=card.offsetWidth,ch=card.offsetHeight,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  if(!el){hl.style.cssText='left:50%;top:50%;width:0;height:0;border-width:0';ar.hidden=true;card.style.left=(vw-cw)/2+'px';card.style.top=Math.max(16,(vh-ch)/2)+'px';return}
+  const r=el.getBoundingClientRect(),p=6,AH=58;
+  const L=cl(r.left-p,4,vw-8),T=cl(r.top-p,4,vh-8),R=cl(r.right+p,8,vw-4),B=cl(r.bottom+p,8,vh-4);
+  hl.style.cssText=`left:${L}px;top:${T}px;width:${R-L}px;height:${B-T}px`;
+  ar.hidden=false;const ax=cl(r.left+r.width/2-24,8,vw-56),above=T,below=vh-B;let ay,cy,up;
+  if(Math.max(above,below)>=AH+ch+20){
+    if(below>=above){up=true;ay=B+4;cy=ay+AH+6}else{up=false;ay=T-AH-4;cy=ay-6-ch}
+  }else if(Math.max(above,below)>=AH+8){
+    if(below>=above){up=true;ay=B+4}else{up=false;ay=T-AH-4}
+    cy=up?16:vh-ch-16;
+  }else{up=false;ay=cl(T+12,8,vh-AH-8);cy=vh-ch-16}
+  ar.classList.toggle('up',up);ar.style.left=ax+'px';ar.style.top=ay+'px';
+  card.style.left=cl(r.left+r.width/2-cw/2,16,vw-cw-16)+'px';card.style.top=cl(cy,16,vh-ch-16)+'px';
+}
+function tourOpen(i=0){$('#tour').hidden=false;tourGo(i);$('#tourNext').focus()}
+function tourClose(){$('#tour').hidden=true;tourI=-1;try{localStorage.setItem('naqsheh-tour-seen','1')}catch(e){}}
+$('#tourBtn').addEventListener('click',()=>tourOpen(0));
+$('#tourNext').addEventListener('click',()=>tourI>=TOUR.length-1?tourClose():tourGo(tourI+1));
+$('#tourPrev').addEventListener('click',()=>tourGo(tourI-1));
+$('#tourSkip').addEventListener('click',tourClose);
+$('#tourBlock').addEventListener('click',()=>tourGo(tourI+1<TOUR.length?tourI+1:tourI));
+window.addEventListener('keydown',e=>{if(tourI<0)return;if(e.key==='Escape'){tourClose();e.stopImmediatePropagation()}
+  else if(e.key==='ArrowLeft'||e.key==='Enter'&&e.target.id!=='tourPrev'&&e.target.id!=='tourSkip'){e.preventDefault();e.stopImmediatePropagation();tourI>=TOUR.length-1?tourClose():tourGo(tourI+1)}
+  else if(e.key==='ArrowRight'){e.preventDefault();e.stopImmediatePropagation();tourGo(tourI-1)}},true);
+addEventListener('resize',()=>tourI>=0&&tourPlace());
+document.addEventListener('scroll',()=>tourI>=0&&tourPlace(),true);
+
 /* ---------- boot ---------- */
 document.documentElement.dir='rtl';document.documentElement.lang='fa';
 renderLib();setSource(makeSample(),'طرح نمونه');
 palette=PRESETS[0].ids.map(id=>({...LIBM[id]}));sortByLum(palette);autoBorderColors();
 syncControls();renderColorSelects();dirty=1;run();
 S.method='fitPreset';syncControls();
+let seen=false;try{seen=localStorage.getItem('naqsheh-tour-seen')==='1'}catch(e){}
+if(!seen)setTimeout(()=>tourOpen(0),700);
 </script>
 </body>
 </html>
