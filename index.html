@@ -268,7 +268,7 @@ input[type=number]{direction:ltr;text-align:right}
         </div>
         <div class="group">
           <h3>پالت فعلی</h3>
-          <p class="hint">روی خانهٔ رنگ بزنید تا رنگ قلم شود. نام را می‌توانید ویرایش کنید.</p>
+          <p class="hint">نام هر رنگ را می‌توانید ویرایش کنید، با مربع رنگی آن را عوض کنید یا با × حذفش کنید.</p>
           <div class="pal" id="pal"></div>
           <div class="row"><button class="btn" id="addColor">+ افزودن رنگ</button><button class="btn" id="removeRare">حذف رنگ‌های کم‌کاربرد (&lt;۰٫۵٪)</button></div>
           <div class="lib" id="lib" hidden></div>
@@ -321,7 +321,7 @@ input[type=number]{direction:ltr;text-align:right}
             <button data-v="tb" aria-pressed="false">نیمه (بالا و پایین)</button>
             <button data-v="quad" aria-pressed="false">لچکی (یک‌چهارم)</button>
           </div>
-          <p class="hint">بیشتر فرش‌های لچک‌ترنج با نقشهٔ یک‌چهارم بافته می‌شوند: بافنده یک ربع را می‌بافد و بقیه را قرینه می‌کند. در حالت قرینه، قلم ویرایش هم قرینه می‌کشد.</p>
+          <p class="hint">بیشتر فرش‌های لچک‌ترنج با نقشهٔ یک‌چهارم بافته می‌شوند: بافنده یک ربع را می‌بافد و بقیه را قرینه می‌کند.</p>
         </div>
         <div class="group">
           <h3>حاشیه (Border)</h3>
@@ -339,11 +339,6 @@ input[type=number]{direction:ltr;text-align:right}
           <h3>پیش‌نمایش فرش</h3>
           <label class="field"><span>ابرش (Abrash)</span><input type="range" data-bind="abrash" data-lv="4" min="0" max="100" step="1"><output></output></label>
           <p class="hint">ابرش تغییر ملایم رنگ در رج‌هاست که از تفاوت دسته‌های رنگرزی پشم می‌آید. فقط در نمای فرش دیده می‌شود و در نقشه اثری ندارد.</p>
-        </div>
-        <div class="group">
-          <h3>ویرایش دستی گره‌ها</h3>
-          <p class="hint">در نمای نقشه ابزار قلم، سطل یا قطره‌چکان را انتخاب کنید. کلیدها: H جابه‌جایی، B قلم، F سطل، I قطره‌چکان، Ctrl+Z بازگشت.</p>
-          <div class="row"><button class="btn" id="clearEdits">پاک کردن ویرایش‌های دستی</button><span class="hint" id="editCount"></span></div>
         </div>
       </section>
 
@@ -370,7 +365,7 @@ input[type=number]{direction:ltr;text-align:right}
         <div class="group">
           <h3>پشتیبان پروژه به‌صورت فایل</h3>
           <div class="row"><button class="btn primary" id="saveProj">ذخیرهٔ پروژه (JSON)</button><label class="btn" for="projFile">باز کردن پروژه</label><input type="file" id="projFile" accept=".json,application/json" hidden></div>
-          <p class="hint">فایل پروژه تصویر، برش، چرخش، اندازه، پالت، فیلترها، تنظیمات خروجی و ویرایش‌های دستی را نگه می‌دارد. برای بردن کار به رایانهٔ دیگر یا نگه داشتن نسخهٔ پشتیبان از آن استفاده کنید.</p>
+          <p class="hint">فایل پروژه تصویر، برش، چرخش، اندازه، پالت، فیلترها و تنظیمات خروجی را نگه می‌دارد. برای بردن کار به رایانهٔ دیگر یا نگه داشتن نسخهٔ پشتیبان از آن استفاده کنید.</p>
         </div>
       </section>
     </aside>
@@ -382,19 +377,10 @@ input[type=number]{direction:ltr;text-align:right}
           <button data-v="rug" aria-pressed="false">فرش</button>
           <button data-v="source" aria-pressed="false">تصویر و برش</button>
         </div>
-        <div class="seg" id="toolSeg">
-          <button data-v="pan" aria-pressed="true" title="جابه‌جایی (H)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg>جابه‌جایی</button>
-          <button data-v="brush" aria-pressed="false" title="قلم (B)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/></svg>قلم</button>
-          <button data-v="fill" aria-pressed="false" title="سطل (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 11l7-7 7 7-7 7z"/><path d="M20 15c0 2-1 3-1 4a1 1 0 0 0 2 0c0-1-1-2-1-4z"/></svg>سطل</button>
-          <button data-v="pick" aria-pressed="false" title="قطره‌چکان (I)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M14 4l6 6-2 2-6-6zM12 8l-8 8v4h4l8-8"/></svg>رنگ‌بردار</button>
-        </div>
-        <span class="cur"><i id="curSw"></i><span id="curName"></span></span>
         <span class="sp"></span>
         <label class="check"><input type="checkbox" id="showGrid" checked> شبکه</label>
         <label class="check"><input type="checkbox" id="showSym" checked> نماد</label>
         <button class="btn" id="rowToggle">رج‌خوان</button>
-        <button class="btn" id="undo" title="بازگشت (Ctrl+Z)">↶</button>
-        <button class="btn" id="redo" title="انجام دوباره (Ctrl+Y)">↷</button>
         <div class="seg"><button id="zoomOut" aria-label="کوچک‌نمایی">−</button><button id="zoomFit">کل</button><button id="zoomIn" aria-label="بزرگ‌نمایی">+</button></div>
       </div>
       <div class="canvasWrap" id="wrap">
@@ -479,14 +465,13 @@ const S={
   sym:'none',
   border:{on:true,guard:2,main:12,pattern:'zigzag',c1:0,c2:0,c3:0},
   abrash:35,preset:'kashan',method:'fitPreset',count:8,
-  view:'map',tool:'pan',active:0,showGrid:true,showSym:true,
+  view:'map',showGrid:true,showSym:true,
   kpd:9000,weavers:2,kgm2:2.6,srcName:'طرح نمونه'
 };
 let palette=[];
 let src=null,rotated=null,rotKey='';
-let base=null,filt=null,post=null,grid=null,overlay=null,W=0,H=0,prevWH='';
+let base=null,filt=null,post=null,grid=null,W=0,H=0,prevWH='';
 let counts=[];
-let undoStack=[],redoStack=[];
 const colorCanvas=document.createElement('canvas'),rugCanvas=document.createElement('canvas');
 const view=document.getElementById('view'),vctx=view.getContext('2d');
 const cam={cell:4,ox:0,oy:0};let needFit=true;
@@ -665,13 +650,6 @@ function symmetry(a,W,H,m){
   if(m==='tb'||m==='quad')for(let y=0;y<H>>1;y++)a.copyWithin((H-1-y)*W,y*W,y*W+W);
   return a;
 }
-function symPoints(x,y){
-  const p=[[x,y]];
-  if(S.sym==='lr'||S.sym==='quad')p.push([W-1-x,y]);
-  if(S.sym==='tb'||S.sym==='quad')p.push([x,H-1-y]);
-  if(S.sym==='quad')p.push([W-1-x,H-1-y]);
-  return p;
-}
 function applyBorder(a,W,H){
   const b=S.border,K=palette.length;let g=b.guard,m=b.main;
   const lim=Math.floor(Math.min(W,H)/2)-2;if(2*g+m>lim){const s=lim/(2*g+m);g=Math.floor(g*s);m=Math.floor(m*s)}
@@ -706,7 +684,7 @@ function run(){
       const rw=rotated.width,rh=rotated.height,c=S.crop;
       base=resample(rotated,c.x*rw,c.y*rh,c.w*rw,c.h*rh,W,H);
       const key=W+'x'+H;
-      if(key!==prevWH){if(overlay&&editCount()>0)toast('ویرایش‌های دستی پاک شد چون شبکهٔ گره‌ها عوض شد.');overlay=new Int16Array(W*H).fill(-1);undoStack=[];redoStack=[];prevWH=key;needFit=true}
+      if(key!==prevWH){prevWH=key;needFit=true}
     }
     if(dirty<=2){
       const a=S.adj;let f=new Float32Array(base);tone(f,a);
@@ -732,7 +710,6 @@ function run(){
 }
 function finalize(){
   grid=new Uint8Array(post);
-  for(let i=0;i<grid.length;i++)if(overlay[i]>=0&&overlay[i]<palette.length)grid[i]=overlay[i];
   buildColorCanvas();buildRug();computeCounts();
 }
 function buildColorCanvas(){
@@ -748,8 +725,6 @@ function buildRug(){
   g.putImageData(im,0,0);
 }
 function computeCounts(){counts=new Array(palette.length).fill(0);if(!grid)return;for(let i=0;i<grid.length;i++)counts[grid[i]]++}
-function setKnot(i,k){grid[i]=k;const p=hex2rgb(palette[k].hex),g=colorCanvas.getContext('2d');g.fillStyle=palette[k].hex;g.fillRect(i%W,(i/W)|0,1,1);rugCanvas.getContext('2d').fillStyle=palette[k].hex;rugCanvas.getContext('2d').fillRect(i%W,(i/W)|0,1,1)}
-const editCount=()=>{let n=0;if(overlay)for(let i=0;i<overlay.length;i++)if(overlay[i]>=0)n++;return n};
 
 /* ---------- palette building ---------- */
 function samplePixels(n){
@@ -791,10 +766,9 @@ function buildPalette(){
   if(!p.length)p=cands.map(c=>({...c}));
   setPalette(sortByLum(p));
 }
-function setPalette(p,keepEdits){
+function setPalette(p){
   palette=p.slice(0,32);
-  if(!keepEdits&&overlay){if(editCount()>0)toast('ویرایش‌های دستی پاک شد چون پالت عوض شد.');overlay.fill(-1);undoStack=[];redoStack=[]}
-  autoBorderColors();S.active=Math.min(S.active,palette.length-1);S.clean.outlineColor=-1;
+  autoBorderColors();S.clean.outlineColor=-1;
   invalidate(3);renderPalette();renderColorSelects();
 }
 function autoBorderColors(){
@@ -807,11 +781,8 @@ function autoBorderColors(){
 function removeColor(i){
   if(palette.length<=2){toast('پالت دست‌کم دو رنگ لازم دارد.');return}
   palette.splice(i,1);
-  if(overlay)for(let j=0;j<overlay.length;j++){if(overlay[j]===i)overlay[j]=-1;else if(overlay[j]>i)overlay[j]--}
-  undoStack=[];redoStack=[];
   for(const k of['c1','c2','c3']){if(S.border[k]===i)S.border[k]=0;else if(S.border[k]>i)S.border[k]--}
   if(S.clean.outlineColor===i)S.clean.outlineColor=-1;else if(S.clean.outlineColor>i)S.clean.outlineColor--;
-  S.active=Math.min(S.active,palette.length-1);
   invalidate(3);renderPalette();renderColorSelects();
 }
 
@@ -912,15 +883,10 @@ function knotAt(px,py){const cw=cam.cell,ch=cw*aspect();const x=Math.floor((px-c
 function localPt(e){const r=view.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
 view.addEventListener('pointerdown',e=>{
   view.setPointerCapture(e.pointerId);const p=localPt(e);ptrs.set(e.pointerId,p);
-  if(ptrs.size===2&&S.view!=='source'){const[a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),cell:cam.cell};drag=null;endStroke();return}
+  if(ptrs.size===2&&S.view!=='source'){const[a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),cell:cam.cell};drag=null;return}
   if(S.view==='source'){drag=cropStart(p);return}
   if(!grid)return;
-  const tool=(e.button===1||e.button===2||space)?'pan':S.tool;
-  if(tool==='pan'){drag={mode:'pan',x:p.x,y:p.y,ox:cam.ox,oy:cam.oy};return}
-  const k=knotAt(p.x,p.y);if(!k)return;
-  if(tool==='pick'){S.active=grid[k.y*W+k.x];renderPalette();updateCur();toast('رنگ قلم: '+palette[S.active].fa);return}
-  if(tool==='fill'){floodFill(k.x,k.y);return}
-  if(tool==='brush'){stroke={idx:[],prev:[]};paintAt(k.x,k.y);drag={mode:'brush',last:k}}
+  drag={mode:'pan',x:p.x,y:p.y,ox:cam.ox,oy:cam.oy};
 });
 view.addEventListener('pointermove',e=>{
   const p=localPt(e);if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,p);
@@ -928,31 +894,15 @@ view.addEventListener('pointermove',e=>{
   if(S.view==='source'){if(drag)cropMove(p);else view.style.cursor=cropCursor(p);return}
   const k=grid?knotAt(p.x,p.y):null;
   if(!drag){if((k&&(!hover||k.x!==hover.x||k.y!==hover.y))||(!k&&hover)){hover=k;redraw();updateStatus()}
-    view.style.cursor=space||S.tool==='pan'?'grab':'crosshair';return}
+    view.style.cursor='grab';return}
   if(drag.mode==='pan'){cam.ox=drag.ox+p.x-drag.x;cam.oy=drag.oy+p.y-drag.y;redraw();view.style.cursor='grabbing'}
-  else if(drag.mode==='brush'&&k){line(drag.last,k,(x,y)=>paintAt(x,y));drag.last=k;redraw()}
 });
 function upPtr(e){ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(S.view==='source'&&drag){drag=null;if(cropChanged){cropChanged=false;invalidate(1)}return}
-  if(drag&&drag.mode==='brush')endStroke();drag=null}
+  drag=null}
 view.addEventListener('pointerup',upPtr);view.addEventListener('pointercancel',upPtr);
 view.addEventListener('pointerleave',()=>{if(hover){hover=null;redraw();updateStatus()}});
 view.addEventListener('contextmenu',e=>e.preventDefault());
 view.addEventListener('wheel',e=>{if(S.view==='source')return;e.preventDefault();const p=localPt(e);zoomAt(p.x,p.y,Math.exp(-e.deltaY*0.0015))},{passive:false});
-function line(a,b,fn){let x0=a.x,y0=a.y;const dx=Math.abs(b.x-x0),dy=-Math.abs(b.y-y0),sx=x0<b.x?1:-1,sy=y0<b.y?1:-1;let err=dx+dy;
-  for(;;){fn(x0,y0);if(x0===b.x&&y0===b.y)break;const e2=2*err;if(e2>=dy){err+=dy;x0+=sx}if(e2<=dx){err+=dx;y0+=sy}}}
-let stroke=null;
-function paintAt(x,y){for(const[px,py]of symPoints(x,y)){const i=py*W+px;if(grid[i]===S.active&&overlay[i]===S.active)continue;stroke.idx.push(i);stroke.prev.push(overlay[i]);overlay[i]=S.active;setKnot(i,S.active)}}
-function endStroke(){if(stroke&&stroke.idx.length){markDirty();undoStack.push({idx:Int32Array.from(stroke.idx),prev:Int16Array.from(stroke.prev),next:S.active});if(undoStack.length>80)undoStack.shift();redoStack=[];computeCounts();renderPalette();updateHeader();updateEditCount();if(rowOn)renderRow()}stroke=null}
-function floodFill(x,y){
-  const t=grid[y*W+x];if(t===S.active)return;stroke={idx:[],prev:[]};
-  const seen=new Uint8Array(W*H),st=[y*W+x];seen[y*W+x]=1;
-  while(st.length){const i=st.pop();const px=i%W,py=(i/W)|0;
-    for(const[qx,qy]of symPoints(px,py)){const q=qy*W+qx;stroke.idx.push(q);stroke.prev.push(overlay[q]);overlay[q]=S.active;setKnot(q,S.active)}
-    const nb=[px>0?i-1:-1,px<W-1?i+1:-1,py>0?i-W:-1,py<H-1?i+W:-1];for(const n of nb)if(n>=0&&!seen[n]&&grid[n]===t){seen[n]=1;st.push(n)}}
-  endStroke();redraw();
-}
-function undo(){const op=undoStack.pop();if(!op)return;const nxt=new Int16Array(op.idx.length);for(let j=op.idx.length-1;j>=0;j--){nxt[j]=overlay[op.idx[j]];overlay[op.idx[j]]=op.prev[j]}redoStack.push({idx:op.idx,prev:op.prev,vals:nxt});invalidate(4)}
-function redo(){const op=redoStack.pop();if(!op)return;for(let j=0;j<op.idx.length;j++)overlay[op.idx[j]]=op.vals[j];undoStack.push({idx:op.idx,prev:op.prev});invalidate(4)}
 // crop
 let cropChanged=false;
 function toNorm(p){const f=srcFit;return{x:(p.x-f.ox)/f.iw,y:(p.y-f.oy)/f.ih}}
@@ -976,10 +926,7 @@ function cropMove(p){
 }
 window.addEventListener('keydown',e=>{
   if(e.target.matches('input,select,textarea'))return;
-  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
-  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo();return}
   if(e.code==='Space'){space=true;return}
-  const m={KeyH:'pan',KeyB:'brush',KeyF:'fill',KeyI:'pick'}[e.code];if(m){setTool(m);return}
   if(rowOn&&(e.key==='ArrowUp'||e.key==='ArrowDown')){e.preventDefault();setRow(rowSel+(e.key==='ArrowUp'?1:-1))}
 });
 window.addEventListener('keyup',e=>{if(e.code==='Space')space=false});
@@ -990,14 +937,13 @@ function renderPresets(){
 }
 function renderPalette(){
   const tot=grid?grid.length:1;
-  $('#pal').innerHTML=palette.map((c,i)=>`<div class="pal-row${i===S.active?' active':''}" data-i="${i}">
-   <button class="sw" style="--c:${c.hex};color:${relLum(c.hex)>0.28?'#000':'#fff'}" data-act="use" title="رنگ قلم">${CODES[i]}</button>
+  $('#pal').innerHTML=palette.map((c,i)=>`<div class="pal-row" data-i="${i}">
+   <span class="sw" style="--c:${c.hex};color:${relLum(c.hex)>0.28?'#000':'#fff'};display:flex;align-items:center;justify-content:center;cursor:default" title="کد رنگ">${CODES[i]}</span>
    <span class="sym">${SYMS[i%SYMS.length]}</span>
    <div class="nm"><input data-act="name" value="${c.fa.replace(/"/g,'&quot;')}" aria-label="نام رنگ"><small>${c.en||''} · ${c.hex}</small></div>
    <span class="pct">${counts[i]!=null?nf(counts[i]/tot*100,1)+'٪':''}</span>
    <input type="color" class="pick" data-act="color" value="${c.hex}" aria-label="تغییر رنگ">
    <button class="x" data-act="del" aria-label="حذف رنگ">×</button></div>`).join('');
-  updateCur();
 }
 function renderColorSelects(){
   const opts=sel=>palette.map((c,i)=>`<option value="${i}"${i===sel?' selected':''}>${CODES[i]} · ${c.fa}</option>`).join('');
@@ -1005,7 +951,6 @@ function renderColorSelects(){
   $('#outlineColor').innerHTML=`<option value="-1"${S.clean.outlineColor<0?' selected':''}>تیره‌ترین رنگ پالت</option>`+opts(S.clean.outlineColor);
 }
 function renderLib(){$('#lib').innerHTML=LIB.map(c=>`<button data-id="${c.id}"><i style="background:${c.hex}"></i>${c.fa}</button>`).join('')}
-function updateCur(){const c=palette[S.active];if(!c)return;$('#curSw').style.background=c.hex;$('#curName').textContent=CODES[S.active]+' · '+c.fa}
 function specs(){
   const{W,H}=knotDims(),hpi=S.raj/S.gereh*2.54,vpi=S.raj*S.rowRatio/S.gereh*2.54,area=S.widthCm*S.lengthCm/1e4;
   return{W,H,tot:W*H,kpsi:hpi*vpi,kdm:(S.raj/S.gereh*10)*(S.raj*S.rowRatio/S.gereh*10),kw:S.gereh/S.raj*10,kh:S.gereh/(S.raj*S.rowRatio)*10,area,
@@ -1033,11 +978,10 @@ function updateStatus(){
   }
   $('#status').innerHTML=parts.map(p=>`<span>${p}</span>`).join('');
 }
-function updateEditCount(){const n=editCount();$('#editCount').textContent=n?nf(n)+' گره ویرایش شده':'بدون ویرایش دستی'}
 function updateSheetInfo(){
   const L=sheetLayout();$('#sheetInfo').textContent=L?`${fa(L.pages)} برگه (${fa(L.cols)} × ${fa(L.rows)}) · هر برگه ${fa(L.kx)} × ${fa(L.ky)} گره · به‌علاوهٔ برگهٔ راهنمای رنگ`:'';
 }
-function updateAll(){markDirty();renderPalette();updateSpecs();updateHeader();updateStatus();updateEditCount();updateSheetInfo();if(rowOn)renderRow();redraw()}
+function updateAll(){markDirty();renderPalette();updateSpecs();updateHeader();updateStatus();updateSheetInfo();if(rowOn)renderRow();redraw()}
 function syncControls(){
   $('#widthCm').value=S.widthCm;$('#lengthCm').value=S.lengthCm;$('#raj').value=S.raj;$('#gereh').value=S.gereh;
   $('#rowRatio').value=S.rowRatio;$('#rowRatioOut').textContent=S.rowRatio.toFixed(2);
@@ -1046,7 +990,7 @@ function syncControls(){
   $('#ditherStrength').value=S.quant.strength;$('#ditherStrengthOut').textContent=S.quant.strength.toFixed(2);
   $('#fine').value=S.fine;$('#fineOut').textContent=S.fine+'°';$('#cropLock').checked=S.cropLock;$('#bPattern').value=S.border.pattern;
   $$('[data-bind]').forEach(el=>{const v=getPath(el.dataset.bind);if(el.type==='checkbox')el.checked=!!v;else{el.value=v;const o=el.parentElement.querySelector('output');if(o)o.textContent=fmtOut(el.dataset.bind,v)}});
-  setSeg('#method',S.method);setSeg('#sym',S.sym);setSeg('#viewSeg',S.view);setSeg('#toolSeg',S.tool);
+  setSeg('#method',S.method);setSeg('#sym',S.sym);setSeg('#viewSeg',S.view);
   $('#countField').hidden=S.method==='preset';methodHint();renderPresets();
 }
 function fmtOut(k,v){if(k==='adj.median')return['خاموش','۳×۳','۵×۵'][v];if(k==='clean.despeckle')return['خاموش','کم','متوسط','زیاد'][v];if(k.startsWith('border.'))return fa(v)+' گره';return String(v)}
@@ -1054,7 +998,6 @@ function getPath(p){return p.split('.').reduce((o,k)=>o[k],S)}
 function setPath(p,v){const ks=p.split('.'),l=ks.pop();ks.reduce((o,k)=>o[k],S)[l]=v}
 function setSeg(sel,v){$$(sel+' button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v))}
 function methodHint(){$('#methodHint').textContent={preset:'همهٔ رنگ‌های پالت انتخاب‌شده به کار می‌رود.',fitPreset:'از رنگ‌های این پالت، آن‌هایی انتخاب می‌شوند که بیشترین شباهت را با تصویر دارند.',fitLibrary:'از میان ۳۲ رنگ سنتی رنگرزی، بهترین‌ها برای این تصویر انتخاب می‌شوند.',exact:'رنگ‌ها مستقیم از تصویر استخراج می‌شوند (K-means)؛ نزدیک‌ترین رنگ سنتی کنار هر کدام نوشته می‌شود.'}[S.method]}
-function setTool(t){S.tool=t;setSeg('#toolSeg',t);if(S.view==='source'&&t!=='pan')setView('map')}
 function setView(v){S.view=v;setSeg('#viewSeg',v);fit();updateStatus();redraw()}
 let toastT=0;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
 
@@ -1239,7 +1182,7 @@ function thumb(){const c=document.createElement('canvas'),s=Math.min(1,96/Math.m
 async function snapshot(){
   const st=JSON.parse(JSON.stringify(S));
   return{app:'naqsheh',v:2,S:st,palette:palette.map(c=>({...c})),W,H,exp:exportSettings(),
-    overlay:editCount()?new Int16Array(overlay):null,image:await sourceBlob(),thumb:thumb(),updated:Date.now()};
+    image:await sourceBlob(),thumb:thumb(),updated:Date.now()};
 }
 async function restore(rec){
   restoring=true;
@@ -1250,10 +1193,7 @@ async function restore(rec){
     setSource(img,rec.S.srcName||'پروژه');if(isBlob)srcBlob={id:src._id,blob:rec.image};
     Object.assign(S,JSON.parse(JSON.stringify(rec.S)));S.crop={...rec.S.crop};
     palette=rec.palette.map(c=>({...c}));applyExportSettings(rec.exp);
-    rotated=null;overlay=null;prevWH='';undoStack=[];redoStack=[];dirty=1;run();
-    let ov=rec.overlay;
-    if(!ov&&rec.edits){ov=new Int16Array(rec.W*rec.H).fill(-1);for(let i=0;i<rec.edits.length;i+=2)ov[rec.edits[i]]=rec.edits[i+1]}
-    if(ov&&rec.W===W&&rec.H===H&&ov.length===W*H){overlay.set(ov);dirty=4;run()}
+    rotated=null;prevWH='';dirty=1;run();
     $('#srcName').textContent=S.srcName;$('#showGrid').checked=S.showGrid;$('#showSym').checked=S.showSym;
     syncControls();renderPalette();renderColorSelects();needFit=true;setView(S.view);
   }finally{restoring=false}
@@ -1290,8 +1230,7 @@ $('#projList').addEventListener('click',async e=>{
 async function saveProject(){
   const r=await snapshot(),c=document.createElement('canvas'),m=1600,sc=Math.min(1,m/Math.max(src.width,src.height));
   c.width=Math.round(src.width*sc);c.height=Math.round(src.height*sc);c.getContext('2d').drawImage(src,0,0,c.width,c.height);
-  const edits=[];for(let i=0;i<overlay.length;i++)if(overlay[i]>=0)edits.push(i,overlay[i]);
-  const p={app:'naqsheh',v:2,name:curProj.name||S.srcName,S:r.S,palette:r.palette,W,H,exp:r.exp,edits,image:c.toDataURL('image/jpeg',0.9)};
+  const p={app:'naqsheh',v:2,name:curProj.name||S.srcName,S:r.S,palette:r.palette,W,H,exp:r.exp,image:c.toDataURL('image/jpeg',0.9)};
   await saveFile(baseName()+'.naqsheh.json',JSON.stringify(p));
 }
 function loadProject(f){
@@ -1344,9 +1283,9 @@ $('#dither').addEventListener('change',e=>{S.quant.dither=e.target.value;invalid
 $('#ditherStrength').addEventListener('input',e=>{S.quant.strength=+e.target.value;$('#ditherStrengthOut').textContent=S.quant.strength.toFixed(2)});
 $('#ditherStrength').addEventListener('change',()=>invalidate(3));
 $('#pal').addEventListener('click',e=>{const row=e.target.closest('.pal-row');if(!row)return;const i=+row.dataset.i,a=e.target.dataset.act;
-  if(a==='del'){removeColor(i);return}if(a==='use'){S.active=i;renderPalette();if(S.tool==='pan'||S.tool==='pick')setTool('brush');if(S.view==='source')setView('map')}});
+  if(a==='del')removeColor(i)});
 $('#pal').addEventListener('change',e=>{const row=e.target.closest('.pal-row');if(!row)return;const i=+row.dataset.i,a=e.target.dataset.act;
-  if(a==='name'){palette[i].fa=e.target.value||palette[i].fa;markDirty();renderColorSelects();updateCur();if(rowOn)renderRow()}
+  if(a==='name'){palette[i].fa=e.target.value||palette[i].fa;markDirty();renderColorSelects();if(rowOn)renderRow()}
   if(a==='color'){palette[i].hex=e.target.value;const nl=nearestLib(e.target.value);palette[i].en='≈ '+nl.en;invalidate(3);renderColorSelects()}});
 $('#addColor').addEventListener('click',()=>{const l=$('#lib');l.hidden=!l.hidden});
 $('#lib').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(palette.length>=32){toast('حداکثر ۳۲ رنگ.');return}palette.push({...LIBM[b.dataset.id]});invalidate(3);renderPalette();renderColorSelects();$('#lib').hidden=true});
@@ -1366,16 +1305,12 @@ $$('[data-fp]').forEach(b=>b.addEventListener('click',()=>{
   const z={bright:0,contrast:0,sat:0,gamma:1,median:0,kuwahara:0,blur:0,sharpen:0};
   const P={photo:[{...z,contrast:12,sat:18,median:1,kuwahara:3},{despeckle:2,outline:false}],flat:[{...z},{despeckle:1,outline:false}],painting:[{...z,sat:10,kuwahara:2,sharpen:0.6},{despeckle:1,outline:true}],reset:[{...z},{despeckle:1,outline:false}]}[b.dataset.fp];
   Object.assign(S.adj,P[0]);Object.assign(S.clean,P[1]);if(b.dataset.fp==='photo')S.quant.dither='none';syncControls();invalidate(2)}));
-$('#clearEdits').addEventListener('click',()=>{if(!overlay)return;const idx=[],prev=[];for(let i=0;i<overlay.length;i++)if(overlay[i]>=0){idx.push(i);prev.push(overlay[i]);overlay[i]=-1}
-  if(idx.length){undoStack.push({idx:Int32Array.from(idx),prev:Int16Array.from(prev)});toast('ویرایش‌ها پاک شد؛ با بازگشت (Ctrl+Z) برمی‌گردد.')}invalidate(4)});
 $('#viewSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setView(b.dataset.v)});
-$('#toolSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setTool(b.dataset.v)});
 $('#showGrid').addEventListener('change',e=>{S.showGrid=e.target.checked;redraw();markDirty()});
 $('#showSym').addEventListener('change',e=>{S.showSym=e.target.checked;redraw();markDirty()});
 $('#zoomIn').addEventListener('click',()=>{const r=view.getBoundingClientRect();zoomAt(r.width/2,r.height/2,1.5)});
 $('#zoomOut').addEventListener('click',()=>{const r=view.getBoundingClientRect();zoomAt(r.width/2,r.height/2,1/1.5)});
 $('#zoomFit').addEventListener('click',fit);
-$('#undo').addEventListener('click',undo);$('#redo').addEventListener('click',redo);
 $('#rowToggle').addEventListener('click',()=>{rowOn=!rowOn;$('#rowbar').hidden=!rowOn;$('#rowToggle').setAttribute('aria-pressed',rowOn);if(rowOn){if(S.view!=='map')setView('map');renderRow();
   const ch=Math.max(cam.cell,10)*aspect(),r=view.getBoundingClientRect();if(cam.cell<10){cam.cell=Math.min(14,Math.max(6,(r.width-80)/W));}cam.ox=cam.cell*W<r.width-40?(r.width-34-W*cam.cell)/2:cam.ox;cam.oy=r.height/2-(H-rowSel+.5)*cam.cell*aspect()}redraw();updateStatus()});
 $('#rowUp').addEventListener('click',()=>setRow(rowSel+1));$('#rowDown').addEventListener('click',()=>setRow(rowSel-1));
@@ -1416,7 +1351,7 @@ const TOUR=[
  {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#method',title:'روش انتخاب رنگ',text:'«همهٔ پالت» همهٔ رنگ‌های پالت را به کار می‌برد. «بهترین‌ها از پالت» شبیه‌ترین رنگ‌ها به تصویر را از همان پالت برمی‌دارد. «از کل رنگ‌ها» از میان ۳۲ رنگ سنتی انتخاب می‌کند. «رنگ دقیق تصویر» رنگ‌ها را مستقیم از عکس استخراج می‌کند.'},
  {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#applyPal',up:'.group',title:'شمار رنگ‌ها و ساخت پالت',text:'شمار رنگ‌ها را تعیین کنید و «ساخت پالت» را بزنید. فرش‌های عشایری معمولاً ۶ تا ۸ رنگ دارند و فرش‌های شهری ریزبافت ۱۲ تا ۲۰ رنگ یا بیشتر. هر رنگ یعنی یک کلاف جدا برای بافنده.'},
  {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#dither',up:'.group',title:'نگاشت رنگ و پخش خطا',text:'«فاصلهٔ رنگی» تعیین می‌کند هر نقطهٔ تصویر به کدام رنگ پالت نزدیک‌تر است؛ حالت ادراکی (CIELAB) به چشم انسان نزدیک‌تر است. «پخش خطا» (Dithering) سایه‌ها را با نقطه‌های درهم می‌سازد؛ برای فرش معمولاً خاموش بهتر است.'},
- {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#pal',title:'پالت فعلی',text:'هر ردیف یک رنگ است با کد حرفی، نماد چاپی و درصد کاربرد. روی خانهٔ رنگ بزنید تا رنگ قلم شود، نام را ویرایش کنید، با مربع رنگی رنگ را عوض کنید یا با × حذفش کنید. رنگ‌های زیر نیم درصد را می‌توانید یکجا حذف کنید.'},
+ {chap:'۳ · رنگ‌ها',tab:'colors',sel:'#pal',title:'پالت فعلی',text:'هر ردیف یک رنگ است با کد حرفی، نماد چاپی و درصد کاربرد. نام را ویرایش کنید، با مربع رنگی رنگ را عوض کنید یا با × حذفش کنید. رنگ‌های زیر نیم درصد را می‌توانید یکجا حذف کنید.'},
  {chap:'۴ · پردازش',tab:'filters',sel:'[data-fp="photo"]',up:'.group',title:'تنظیمات آماده',text:'برای شروع سریع یکی را بزنید: «عکس» برای عکس‌های واقعی، «لوگو و طرح تخت» برای طرح‌های ساده، «نقاشی و مینیاتور» برای آثار هنری.'},
  {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="adj.bright"]',up:'.group',title:'رنگ و نور',text:'روشنایی، کنتراست، اشباع رنگ و گاما (Gamma) پیش از رنگ‌گذاری روی تصویر اعمال می‌شوند. افزایش کنتراست و اشباع کمک می‌کند رنگ‌ها جداتر و نقش‌ها خواناتر شوند.'},
  {chap:'۴ · پردازش',tab:'filters',sel:'[data-bind="adj.kuwahara"]',up:'.group',title:'ساده‌سازی',text:'«حذف نویز» (Median) دانه‌ها و لکه‌های ریز را پاک می‌کند. «نقاشی‌گون» (Kuwahara) سطح‌های یکدست می‌سازد و لبه‌ها را نگه می‌دارد؛ مؤثرترین ابزار برای تبدیل عکس به نقشه است. «نرم‌کردن» و «تیزکردن» جزئیات را کم یا زیاد می‌کنند.'},
@@ -1424,15 +1359,14 @@ const TOUR=[
  {chap:'۵ · طرح',tab:'pattern',sel:'#sym',title:'قرینه‌سازی (Symmetry)',text:'«لچکی» یک‌چهارم بالای تصویر را در چهار جهت قرینه می‌کند، مانند فرش‌های لچک‌ترنج. «نیمه» فقط چپ و راست یا بالا و پایین را قرینه می‌کند.'},
  {chap:'۵ · طرح',tab:'pattern',sel:'[data-bind="border.on"]',up:'.group',title:'حاشیه (Border)',text:'یک حاشیه با دو باریکه (Guard) بیرونی و درونی و یک حاشیهٔ اصلی دور فرش بگذارید. پهنا را به گره تعیین کنید، نقش (دندانه‌ای، کنگره‌ای، شطرنجی، اریب یا گل‌های پی‌درپی) و سه رنگ آن را انتخاب کنید.'},
  {chap:'۵ · طرح',tab:'pattern',sel:'[data-bind="abrash"]',up:'.group',title:'ابرش (Abrash)',text:'ابرش تغییر ملایم رنگ در رج‌هاست که از تفاوت دسته‌های رنگرزی پشم پیدا می‌شود. فقط در نمای «فرش» دیده می‌شود تا ظاهر فرش واقعی را ببینید.'},
- {chap:'۶ · نما و ویرایش',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
- {chap:'۶ · نما و ویرایش',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
- {chap:'۶ · نما و ویرایش',sel:'#toolSeg',title:'ویرایش دستی گره‌ها',text:'«قلم» گره‌ها را با رنگ انتخاب‌شده رنگ می‌کند، «سطل» یک ناحیهٔ هم‌رنگ را یکجا پر می‌کند و «رنگ‌بردار» رنگ یک گره را برمی‌دارد. با Ctrl+Z ویرایش را برگردانید.'},
- {chap:'۶ · نما و ویرایش',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
+ {chap:'۶ · نما',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
+ {chap:'۶ · نما',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
+ {chap:'۶ · نما',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
  {chap:'۷ · خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'اندازهٔ کاغذ و اندازهٔ هر خانه را انتخاب کنید. نقشه به چند برگه تقسیم می‌شود و شمار برگه‌ها زیر همین بخش نوشته می‌شود. برای فرش‌های قرینه می‌توانید فقط نیمه یا یک‌چهارم نقشه را چاپ کنید.'},
  {chap:'۷ · خروجی',tab:'export',sel:'#rtl',up:'.check',title:'جهت شماره‌گذاری',text:'اگر بافنده از راست به چپ گره می‌زند این گزینه را روشن نگه دارید؛ شمارهٔ گره‌ها، برگه‌ها و رج‌خوان همه از راست شروع می‌شوند. «نماد در خانه‌ها» برای چاپ سیاه‌وسفید لازم است.'},
  {chap:'۷ · خروجی',tab:'export',sel:'#expPdf',title:'ساخت PDF',text:'این دکمه فایل PDF می‌سازد: یک برگهٔ راهنما با رنگ‌ها، شمار گره و پشم هر رنگ و نقشهٔ برگه‌ها، و پس از آن برگه‌های نقشه با شمارهٔ رج و گره. فایل را ذخیره و چاپ کنید.'},
  {chap:'۷ · خروجی',tab:'export',sel:'#expPng',up:'.group',title:'فایل‌های دیگر',text:'تصویر کامل نقشه، پیش‌نمایش فرش برای سفارش‌دهنده، تعلیم رج‌به‌رج به صورت متن، فهرست رنگ و پشم و دادهٔ خام نقشه را هم می‌توانید جداگانه ذخیره کنید.'},
- {chap:'۷ · خروجی',tab:'export',sel:'#saveProj',up:'.group',title:'پشتیبان به‌صورت فایل',text:'پروژه را به‌صورت یک فایل ذخیره کنید تا روی رایانهٔ دیگر بازش کنید یا نسخهٔ پشتیبان داشته باشید. همهٔ تنظیمات، از برش و رنگ‌ها تا ویرایش‌های دستی و تنظیمات خروجی، در آن هست.'},
+ {chap:'۷ · خروجی',tab:'export',sel:'#saveProj',up:'.group',title:'پشتیبان به‌صورت فایل',text:'پروژه را به‌صورت یک فایل ذخیره کنید تا روی رایانهٔ دیگر بازش کنید یا نسخهٔ پشتیبان داشته باشید. همهٔ تنظیمات، از برش و رنگ‌ها تا تنظیمات خروجی، در آن هست.'},
  {chap:'پایان',title:'آماده‌اید!',text:'حالا تصویر خودتان را بارگذاری کنید. کارتان خودکار ذخیره می‌شود. هر وقت خواستید، این راهنما را با دکمهٔ «راهنمای گام‌به‌گام» در بالای صفحه دوباره ببینید.'}
 ];
 let tourI=-1;
