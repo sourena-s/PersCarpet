@@ -207,7 +207,7 @@ input[type=number]{direction:ltr;text-align:right}
           <h3>تصویر مبدأ</h3>
           <label class="drop" id="drop" for="file"><strong>انتخاب تصویر</strong><span>یا تصویر را اینجا بکشید یا جای‌گذاری (Paste) کنید</span><span class="ltr">JPG / PNG / WebP</span></label>
           <input type="file" id="file" accept="image/*" hidden>
-          <p class="hint">تصویر فعلی: <b id="srcName">طرح نمونه</b></p>
+          <p class="hint">تصویر فعلی: <b id="srcName">طرح نمونه</b> <span id="srcCredit"></span></p>
         </div>
         <div class="group" id="galleryGroup">
           <h3>کتابخانهٔ طرح‌های نمونه</h3>
@@ -215,6 +215,16 @@ input[type=number]{direction:ltr;text-align:right}
           <div class="chiprow" id="galRegion"></div>
           <div class="chiprow" id="galType"></div>
           <div class="gallery" id="gallery"></div>
+        </div>
+        <div class="group" id="museumGroup">
+          <h3>فرش‌های موزه‌ای با دسترسی آزاد (Open Access)</h3>
+          <p class="hint">عکس فرش‌های تاریخی از مجموعه‌های آزاد موزهٔ متروپولیتن نیویورک و موزهٔ هنر کلیولند. همهٔ این تصویرها با مجوز CC0 (مالکیت عمومی) منتشر شده‌اند و استفاده از آن‌ها آزاد است. برای جستجو اتصال اینترنت لازم است.</p>
+          <div class="seg" id="musSrc"><button data-v="met" aria-pressed="true">موزهٔ متروپولیتن (The Met)</button><button data-v="cma" aria-pressed="false">موزهٔ کلیولند (Cleveland)</button></div>
+          <div class="chiprow" id="musChips"></div>
+          <div class="projsave" style="grid-template-columns:minmax(0,1fr) auto"><input type="text" id="musQ" class="ltr" placeholder="Persian carpet" aria-label="جستجو به انگلیسی"><button class="btn primary" id="musGo">جستجو</button></div>
+          <label class="check"><input type="checkbox" id="musSize" checked> ابعاد واقعی فرش موزه را به کار ببر</label>
+          <p class="hint" id="musStatus">جستجو را به انگلیسی بنویسید یا یکی از دکمه‌ها را بزنید.</p>
+          <div class="gallery" id="musResults"></div>
         </div>
         <div class="group">
           <h3>چرخش و قرینه</h3>
@@ -1100,7 +1110,7 @@ function setSource(img,name){
 function loadFile(f){
   if(!f||!f.type.startsWith('image/')){toast('این فایل تصویر نیست.');return}
   const url=URL.createObjectURL(f),img=new Image();
-  img.onload=()=>{curProj={id:null,name:''};S.sampleId='';S.repeat={x:1,y:1,mirror:true};S.sym='none';$('#projName').value=f.name.replace(/\.[^.]+$/,'');renderProjects();setSource(img,f.name);URL.revokeObjectURL(url);syncControls();dirty=1;run();buildPalette();renderGallery();setView('source');toast('تصویر بارگذاری شد؛ کادر برش را تنظیم کنید.')};
+  img.onload=()=>{curProj={id:null,name:''};S.sampleId='';S.credit=null;S.repeat={x:1,y:1,mirror:true};S.sym='none';$('#projName').value=f.name.replace(/\.[^.]+$/,'');renderProjects();setSource(img,f.name);URL.revokeObjectURL(url);syncControls();dirty=1;run();buildPalette();renderGallery();setView('source');toast('تصویر بارگذاری شد؛ کادر برش را تنظیم کنید.')};
   img.onerror=()=>toast('خواندن تصویر ممکن نشد.');img.src=url;
 }
 /* ---------- sample library (procedural traditional designs) ---------- */
@@ -1292,12 +1302,12 @@ function loadSample(sm,quiet){
   curProj={id:null,name:''};if($('#projName'))$('#projName').value=quiet?'':sm.fa;
   S.widthCm=sm.w;S.lengthCm=sm.l;S.raj=sm.raj;S.gereh=sm.gereh||7;S.rowRatio=1;S.sym=sm.sym||'none';S.repeat={x:1,y:1,mirror:true};
   S.adj={bright:0,contrast:0,sat:0,gamma:1,median:0,kuwahara:0,blur:0,sharpen:0};S.clean={despeckle:1,outline:false,outlineColor:-1,outlineThr:22};
-  S.quant.dither='none';S.preset=sm.preset;S.method=sm.method||'fitPreset';S.count=sm.count;S.sampleId=sm.id;S.cropLock=true;
+  S.quant.dither='none';S.credit=null;S.preset=sm.preset;S.method=sm.method||'fitPreset';S.count=sm.count;S.sampleId=sm.id;S.cropLock=true;
   setSource(sampleCanvas(sm,600),sm.fa);
   const{W:kw}=knotDims();S.border.on=!!sm.border;if(sm.border){S.border.pattern=sm.border.p;S.border.guard=Math.max(1,Math.round(kw*sm.border.g));S.border.main=Math.max(3,Math.round(kw*sm.border.m))}
   syncControls();dirty=1;run();buildPalette();
   if(sm.border&&sm.border.c){[S.border.c1,S.border.c2,S.border.c3]=sm.border.c.map(id=>nearestPalIdx(Kc(id)));renderColorSelects();invalidate(3)}
-  renderGallery();if(!quiet){setView('map');toast('طرح «'+sm.fa+'» بار شد؛ پالت، رج، قرینه و حاشیهٔ مناسب آن تنظیم شد.')}
+  renderGallery();showCredit();if(!quiet){setView('map');toast('طرح «'+sm.fa+'» بار شد؛ پالت، رج، قرینه و حاشیهٔ مناسب آن تنظیم شد.')}
 }
 
 
@@ -1445,12 +1455,12 @@ async function restore(rec){
     const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('تصویر پروژه خوانده نشد'));i.src=url});
     if(isBlob)URL.revokeObjectURL(url);
     setSource(img,rec.S.srcName||'پروژه');if(isBlob)srcBlob={id:src._id,blob:rec.image};
-    S.repeat={x:1,y:1,mirror:true};S.wage=0;S.woolPrice=0;S.sampleId='';
+    S.repeat={x:1,y:1,mirror:true};S.wage=0;S.woolPrice=0;S.sampleId='';S.credit=null;
     Object.assign(S,JSON.parse(JSON.stringify(rec.S)));S.crop={...rec.S.crop};
     palette=rec.palette.map(c=>({...c}));applyExportSettings(rec.exp);
     rotated=null;prevWH='';dirty=1;run();
     $('#srcName').textContent=S.srcName;$('#showGrid').checked=S.showGrid;$('#showSym').checked=S.showSym;
-    syncControls();renderPalette();renderColorSelects();renderGallery();needFit=true;setView(S.view);
+    syncControls();renderPalette();renderColorSelects();renderGallery();showCredit();needFit=true;setView(S.view);
   }finally{restoring=false}
 }
 function markDirty(){if(restoring||!booted)return;$('#saveState').textContent='در حال ذخیره…';$('#saveState').classList.add('dirty');clearTimeout(autoT);autoT=setTimeout(autosave,1200)}
@@ -1493,6 +1503,62 @@ function loadProject(f){
     await restore(p);curProj={id:null,name:p.name||''};$('#projName').value=p.name||'';renderProjects();markDirty();toast('پروژه باز شد.')}
     catch(e){toast('باز کردن پروژه ممکن نشد: '+e.message)}};rd.readAsText(f);
 }
+
+/* ---------- open-access museum carpets ---------- */
+const MUS_Q=[['فرش ایرانی','Persian carpet'],['لچک‌ترنج','medallion carpet'],['باغی','garden carpet'],['محرابی','prayer rug'],['کاشان','Kashan'],['تبریز','Tabriz'],['اصفهان','Isfahan'],['کرمان','Kerman'],['هریس','Heriz'],['ترکمن','Turkmen'],['قشقایی','Qashqai'],['شکارگاه','hunting carpet']];
+let musSrc='met',musBusy=false;
+const isRug=t=>/rug|carpet|kilim|gabbeh/i.test(t||'');
+function parseCm(t){const v=[...String(t||'').matchAll(/([\d.]+)\s*(?:x\s*([\d.]+)\s*)?cm/gi)].flatMap(m=>[+m[1],m[2]?+m[2]:NaN]).filter(n=>n>20&&n<2000);if(v.length<2)return null;const a=v.slice(0,2).sort((x,y)=>x-y);return{w:Math.round(a[0]),l:Math.round(a[1])}}
+async function musFetchJson(u){const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+async function searchMet(q){
+  const ids=((await musFetchJson('https://collectionapi.metmuseum.org/public/collection/v1/search?hasImages=true&departmentId=14&q='+encodeURIComponent(q))).objectIDs||[]).slice(0,60);
+  const out=[];for(let i=0;i<ids.length&&out.length<18;i+=12){
+    const objs=await Promise.all(ids.slice(i,i+12).map(id=>musFetchJson('https://collectionapi.metmuseum.org/public/collection/v1/objects/'+id).catch(()=>null)));
+    for(const o of objs)if(o&&o.isPublicDomain&&o.primaryImageSmall&&isRug(o.objectName+' '+o.classification+' '+o.title))
+      out.push({museum:'The Met',title:o.title,date:o.objectDate,place:[o.culture,o.country,o.region,o.city].filter(Boolean).join('، '),thumb:o.primaryImageSmall,img:o.primaryImageSmall,page:o.objectURL,size:parseCm(o.dimensions)})}
+  return out;
+}
+async function searchCma(q){
+  const d=await musFetchJson('https://openaccess-api.clevelandart.org/api/artworks/?has_image=1&cc0=1&limit=30&q='+encodeURIComponent(q));
+  return(d.data||[]).filter(o=>o.images&&o.images.web&&isRug(o.type+' '+o.title)).slice(0,18).map(o=>({museum:'Cleveland Museum of Art',title:o.title,date:o.creation_date,place:(o.culture||[]).join('، '),
+    thumb:o.images.web.url,img:(o.images.print||o.images.web).url,page:o.url,size:parseCm(o.measurements)}));
+}
+let musList=[];
+async function musSearch(q){
+  if(musBusy)return;q=(q||$('#musQ').value||'Persian carpet').trim();$('#musQ').value=q;musBusy=true;$('#musGo').disabled=true;
+  $('#musStatus').textContent='در حال جستجو در '+(musSrc==='met'?'موزهٔ متروپولیتن':'موزهٔ کلیولند')+'…';$('#musResults').innerHTML='';
+  try{musList=musSrc==='met'?await searchMet(q):await searchCma(q);
+    $('#musStatus').textContent=musList.length?`${fa(musList.length)} فرش پیدا شد. روی هر کدام بزنید تا بار شود.`:'فرشی با تصویر آزاد پیدا نشد؛ واژهٔ دیگری را امتحان کنید.';
+    $('#musResults').innerHTML=musList.map((m,i)=>`<button class="gcard" data-i="${i}"><img src="${m.thumb}" alt="" loading="lazy" referrerpolicy="no-referrer"><b></b><small></small><small>${m.size?fa(m.size.w)+'×'+fa(m.size.l)+' سانتی‌متر':''}</small></button>`).join('');
+    $$('#musResults .gcard').forEach((el,i)=>{el.querySelector('b').textContent=musList[i].title;el.querySelector('small').textContent=[musList[i].date,musList[i].place].filter(Boolean).join('، ')})}
+  catch(e){$('#musStatus').textContent='اتصال به موزه ممکن نشد ('+e.message+'). اتصال اینترنت را بررسی کنید یا تصویر را از صفحهٔ موزه دانلود و بارگذاری کنید.'}
+  musBusy=false;$('#musGo').disabled=false;
+}
+async function fetchBitmap(url){
+  const tries=[url,'https://images.weserv.nl/?w=2000&we&url='+encodeURIComponent(url)];let last;
+  for(const u of tries){try{const r=await fetch(u,{mode:'cors'});if(!r.ok)throw new Error('HTTP '+r.status);return await createImageBitmap(await r.blob())}catch(e){last=e}}
+  throw last||new Error('خطا');
+}
+async function loadMuseum(m){
+  $('#musStatus').textContent='در حال بارگیری تصویر «'+m.title+'»…';$('#busy').hidden=false;
+  try{const bmp=await fetchBitmap(m.img);
+    curProj={id:null,name:''};$('#projName').value=m.title;renderProjects();
+    S.sampleId='';S.repeat={x:1,y:1,mirror:true};S.sym='none';S.credit={museum:m.museum,title:m.title,date:m.date,page:m.page};
+    if(m.size&&$('#musSize').checked){S.widthCm=m.size.w;S.lengthCm=m.size.l}
+    Object.assign(S.adj,{bright:0,contrast:12,sat:18,gamma:1,median:1,kuwahara:2,blur:0,sharpen:0});Object.assign(S.clean,{despeckle:2,outline:false});S.quant.dither='none';
+    S.method='fitLibrary';S.count=12;S.border.on=false;
+    setSource(bmp,m.title);showCredit();syncControls();dirty=1;run();buildPalette();renderGallery();setView('source');
+    $('#musStatus').textContent='بار شد. کادر برش را دقیقاً روی لبه‌های فرش (بدون ریشه) تنظیم کنید.';toast('فرش «'+m.title+'» از '+m.museum+' بار شد.')}
+  catch(e){$('#busy').hidden=true;$('#musStatus').innerHTML='';const a=document.createElement('a');a.href=m.page;a.target='_blank';a.rel='noopener';a.textContent='صفحهٔ این فرش در موزه';
+    $('#musStatus').append('بارگیری مستقیم تصویر ممکن نشد. تصویر را از ',a,' دانلود و با «انتخاب تصویر» بارگذاری کنید.')}
+}
+function showCredit(){const el=$('#srcCredit');el.textContent='';const c=S.credit;if(!c)return;const a=document.createElement('a');a.href=c.page;a.target='_blank';a.rel='noopener';a.textContent=c.museum;el.append('(منبع: ',a,'، CC0)')}
+$('#musChips').innerHTML=MUS_Q.map(([f,e])=>`<button class="chipbtn" data-q="${e}">${f}</button>`).join('');
+$('#musChips').addEventListener('click',e=>{const b=e.target.closest('button');if(b)musSearch(b.dataset.q)});
+$('#musGo').addEventListener('click',()=>musSearch());
+$('#musQ').addEventListener('keydown',e=>{if(e.key==='Enter')musSearch()});
+$('#musSrc').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;musSrc=b.dataset.v;setSeg('#musSrc',musSrc);if(musList.length)musSearch()});
+$('#musResults').addEventListener('click',e=>{const b=e.target.closest('.gcard');if(b)loadMuseum(musList[+b.dataset.i])});
 
 /* ---------- wiring ---------- */
 $('#galRegion').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;galReg=b.dataset.v;renderGallery()});
@@ -1591,42 +1657,43 @@ new MutationObserver(redraw).observe(document.documentElement,{attributes:true,a
 /* ---------- guided tour ---------- */
 const TOUR=[
  {chap:'آغاز',title:'به نقشه‌کش خوش آمدید',text:'این راهنما گام‌به‌گام نشان می‌دهد چطور یک تصویر را به نقشهٔ قابل بافت تبدیل کنید: بارگذاری تصویر، تنظیم اندازه و رج، انتخاب رنگ‌ها، پردازش تصویر و در پایان خروجی چاپی برای بافنده. پیکان زرد هر بار بخش مورد نظر را نشان می‌دهد. با کلیدهای جهت‌نما هم می‌توانید جابه‌جا شوید.'},
- {chap:'۱، تصویر',tab:'image',sel:'#projGroup',title:'پروژه‌های من',text:'هر تغییری که می‌دهید خودکار در همین مرورگر ذخیره می‌شود؛ اگر صفحه را ببندید، دفعهٔ بعد کار از همان‌جا ادامه پیدا می‌کند. برای نگه داشتن چند طرح، نامی بنویسید و «ذخیره» را بزنید. «نسخهٔ جدید» یک نسخهٔ جدا می‌سازد. فهرست پایین همهٔ پروژه‌ها را با تصویر کوچک نشان می‌دهد.'},
- {chap:'۱، تصویر',tab:'image',sel:'#drop',title:'بارگذاری تصویر',text:'روی این کادر بزنید و تصویر خود را انتخاب کنید. می‌توانید فایل را روی آن بکشید و رها کنید، یا تصویری را که کپی کرده‌اید با Ctrl+V جای‌گذاری (Paste) کنید. قالب‌های JPG، PNG و WebP پذیرفته می‌شوند.'},
- {chap:'۱، تصویر',tab:'image',sel:'#galleryGroup',title:'کتابخانهٔ طرح‌های نمونه',text:'به‌جای تصویر خودتان می‌توانید یکی از ۱۶ طرح سنتی را بار کنید: لچک‌ترنج کاشان و تبریز، شاه‌عباسی اصفهان، هراتی بیجار، بته‌جقهٔ سرابند، گل ترکمن، محرابی بلوچ، گبه و دیگران. با دکمه‌های «منطقه» و «نوع طرح» فهرست را فیلتر کنید. هر طرح، ابعاد، رج، پالت، قرینه و حاشیهٔ مناسب خودش را تنظیم می‌کند.'},
- {chap:'۱، تصویر',tab:'image',sel:'#rotR',up:'.row',title:'چرخش و آینه',text:'با دکمه‌های ۹۰ درجه تصویر را بچرخانید و با «آینه» آن را افقی یا عمودی برگردانید. طول فرش همیشه در راستای عمودی نقشه است.'},
- {chap:'۱، تصویر',tab:'image',sel:'#fine',up:'.field',title:'صاف کردن (Straighten)',text:'اگر عکس کمی کج گرفته شده (مثلاً عکس یک فرش قدیمی)، با این لغزنده زاویه را تا ۴۵ درجه دقیق تنظیم کنید.'},
- {chap:'۱، تصویر',tab:'image',sel:'#wrap',view:'source',title:'کادر برش (Crop)',text:'کادر سفید را روی تصویر جابه‌جا کنید و با مربع‌های گوشه اندازه‌اش را تغییر دهید. بیرون کادر بکشید تا کادر تازه بسازید. پس از رها کردن، نقشه دوباره ساخته می‌شود.'},
- {chap:'۱، تصویر',tab:'image',sel:'#cropLock',up:'.group',title:'قفل تناسب',text:'وقتی قفل روشن است، کادر برش همیشه هم‌تناسب با طول و عرض فرش می‌ماند تا تصویر کشیده نشود. «کل تصویر» قفل را برمی‌دارد و همهٔ تصویر را می‌گیرد.'},
- {chap:'۲، اندازه و رج',tab:'size',sel:'#sizeChips',title:'اندازه‌های رایج',text:'یکی از اندازه‌های سنتی را بزنید: پشتی، زرع‌ونیم، دوزرع، قالیچه، ۶ متری، ۱۲ متری یا کناره.'},
- {chap:'۲، اندازه و رج',tab:'size',sel:'#widthCm',up:'.group',title:'طول و عرض دلخواه',text:'ابعاد را به سانتی‌متر وارد کنید. دکمهٔ «جابه‌جایی» برای فرش‌های افقی است.'},
- {chap:'۲، اندازه و رج',tab:'size',sel:'#raj',up:'.field2',title:'رج (Raj)',text:'رج یعنی شمار گره‌ها در یک «گره» (حدود ۷ سانتی‌متر) از عرض فرش. رج بالاتر یعنی فرش ریزبافت‌تر، جزئیات بیشتر و زمان بافت طولانی‌تر. ۲۵ تا ۳۰ برای عشایری، ۳۵ تا ۵۰ برای تبریز و کاشان، ۶۰ به بالا برای نائین و قم.'},
- {chap:'۲، اندازه و رج',tab:'size',sel:'#gereh',up:'.field2',title:'طول گره (Gereh)',text:'در تبریز رج را در ۷ سانتی‌متر می‌شمارند و در کاشان و اصفهان معمولاً در ۶٫۵ سانتی‌متر. همان واحدی را انتخاب کنید که بافندهٔ شما به کار می‌برد.'},
- {chap:'۲، اندازه و رج',tab:'size',sel:'#rowRatio',up:'.field',title:'تراکم پود به تار',text:'عدد ۱ یعنی گره‌ها مربعی‌اند. اگر بافنده رج‌ها را در طول فشرده‌تر می‌کوبد، عدد را بیشتر کنید تا شمار رج‌ها درست حساب شود و خانه‌های نقشه کوتاه‌تر شوند.'},
- {chap:'۲، اندازه و رج',tab:'size',sel:'#specs',title:'مشخصات فنی',text:'اینجا شمار گره در عرض و رج در طول، کل گره‌ها، گره در دسی‌مترمربع، گره در اینچ مربع (KPSI) و اندازهٔ هر گره را می‌بینید.'},
- {chap:'۲، اندازه و رج',tab:'size',sel:'#estimate',up:'.group',title:'برآورد زمان، پشم و هزینه',text:'سرعت هر بافنده و شمار بافنده‌ها را وارد کنید تا زمان تقریبی بافت به روز و ماه حساب شود. وزن پشم پرز در هر مترمربع، کل پشم لازم را تعیین می‌کند. اگر دستمزد هر ۱۰۰۰ گره و قیمت پشم را بنویسید، هزینهٔ کل فرش هم برآورد می‌شود.'},
- {chap:'۳، رنگ‌ها',tab:'colors',sel:'#presets',title:'پالت‌های سنتی',text:'پالت یک منطقه را انتخاب کنید: کاشان، تبریز، اصفهان، نائین، کرمان، هریس، قشقایی، بلوچ، قم یا بیجار. همهٔ رنگ‌ها از رنگ‌های رایج رنگرزی فرش ایرانی گرفته شده‌اند.'},
- {chap:'۳، رنگ‌ها',tab:'colors',sel:'#method',title:'روش انتخاب رنگ',text:'«همهٔ پالت» همهٔ رنگ‌های پالت را به کار می‌برد. «بهترین‌ها از پالت» شبیه‌ترین رنگ‌ها به تصویر را از همان پالت برمی‌دارد. «از کل رنگ‌ها» از میان ۳۲ رنگ سنتی انتخاب می‌کند. «رنگ دقیق تصویر» رنگ‌ها را مستقیم از عکس استخراج می‌کند.'},
- {chap:'۳، رنگ‌ها',tab:'colors',sel:'#applyPal',up:'.group',title:'شمار رنگ‌ها و ساخت پالت',text:'شمار رنگ‌ها را تعیین کنید و «ساخت پالت» را بزنید. فرش‌های عشایری معمولاً ۶ تا ۸ رنگ دارند و فرش‌های شهری ریزبافت ۱۲ تا ۲۰ رنگ یا بیشتر. هر رنگ یعنی یک کلاف جدا برای بافنده.'},
- {chap:'۳، رنگ‌ها',tab:'colors',sel:'#dither',up:'.group',title:'نگاشت رنگ و پخش خطا',text:'«فاصلهٔ رنگی» تعیین می‌کند هر نقطهٔ تصویر به کدام رنگ پالت نزدیک‌تر است؛ حالت ادراکی (CIELAB) به چشم انسان نزدیک‌تر است. «پخش خطا» (Dithering) سایه‌ها را با نقطه‌های درهم می‌سازد؛ برای فرش معمولاً خاموش بهتر است.'},
- {chap:'۳، رنگ‌ها',tab:'colors',sel:'#pal',title:'پالت فعلی',text:'هر ردیف یک رنگ است با کد حرفی، نماد چاپی و درصد کاربرد. نام را ویرایش کنید، با مربع رنگی رنگ را عوض کنید یا با × حذفش کنید. رنگ‌های زیر نیم درصد را می‌توانید یکجا حذف کنید.'},
- {chap:'۳، رنگ‌ها',tab:'colors',sel:'#analysisGroup',title:'تحلیل گره‌ها',text:'این بخش نشان می‌دهد نقشه چقدر بافتنی است: میانگین تعویض رنگ در هر رج، طول رشته‌های هم‌رنگ، شمار گره‌های تک و میزان قرینگی. سختی بافت از روی همین‌ها تعیین می‌شود. اگر دو رنگ پالت در پشم تقریباً یکسان دیده شوند، با دکمهٔ «ادغام» یکی‌شان کنید.'},
- {chap:'۴، پردازش',tab:'filters',sel:'[data-fp="photo"]',up:'.group',title:'تنظیمات آماده',text:'برای شروع سریع یکی را بزنید: «عکس» برای عکس‌های واقعی، «لوگو و طرح تخت» برای طرح‌های ساده، «نقاشی و مینیاتور» برای آثار هنری.'},
- {chap:'۴، پردازش',tab:'filters',sel:'[data-bind="adj.bright"]',up:'.group',title:'رنگ و نور',text:'روشنایی، کنتراست، اشباع رنگ و گاما (Gamma) پیش از رنگ‌گذاری روی تصویر اعمال می‌شوند. افزایش کنتراست و اشباع کمک می‌کند رنگ‌ها جداتر و نقش‌ها خواناتر شوند.'},
- {chap:'۴، پردازش',tab:'filters',sel:'[data-bind="adj.kuwahara"]',up:'.group',title:'ساده‌سازی',text:'«حذف نویز» (Median) دانه‌ها و لکه‌های ریز را پاک می‌کند. «نقاشی‌گون» (Kuwahara) سطح‌های یکدست می‌سازد و لبه‌ها را نگه می‌دارد؛ مؤثرترین ابزار برای تبدیل عکس به نقشه است. «نرم‌کردن» و «تیزکردن» جزئیات را کم یا زیاد می‌کنند.'},
- {chap:'۴، پردازش',tab:'filters',sel:'[data-bind="clean.despeckle"]',up:'.group',title:'پاک‌سازی پس از رنگ‌گذاری',text:'«حذف گره‌های تک» (Despeckle) گره‌هایی را که تنها و بی‌همسایهٔ هم‌رنگ‌اند برمی‌دارد، چون بافتنشان سخت است و در فرش دیده نمی‌شوند. «خط دور» (Outline) دور نقش‌ها یک ردیف گرهٔ تیره می‌گذارد، مثل قلم‌گیری در نقشه‌های ایرانی.'},
- {chap:'۵، طرح',tab:'pattern',sel:'#sym',title:'قرینه‌سازی (Symmetry)',text:'«لچکی» یک‌چهارم بالای تصویر را در چهار جهت قرینه می‌کند، مانند فرش‌های لچک‌ترنج. «نیمه» فقط چپ و راست یا بالا و پایین را قرینه می‌کند.'},
- {chap:'۵، طرح',tab:'pattern',sel:'#repeatGroup',title:'تکرار نقش (Repeat)',text:'برای طرح‌های افشان و خشتی، بخشی از تصویر را برش بزنید و تعیین کنید چند بار در عرض و طول تکرار شود. با «قرینه کردن خانه‌های یک‌درمیان» درزهای بین تکرارها پنهان می‌شود.'},
- {chap:'۵، طرح',tab:'pattern',sel:'[data-bind="border.on"]',up:'.group',title:'حاشیه (Border)',text:'یک حاشیه با دو باریکه (Guard) بیرونی و درونی و یک حاشیهٔ اصلی دور فرش بگذارید. پهنا را به گره تعیین کنید، نقش (دندانه‌ای، کنگره‌ای، شطرنجی، اریب یا گل‌های پی‌درپی) و سه رنگ آن را انتخاب کنید.'},
- {chap:'۵، طرح',tab:'pattern',sel:'[data-bind="abrash"]',up:'.group',title:'ابرش (Abrash)',text:'ابرش تغییر ملایم رنگ در رج‌هاست که از تفاوت دسته‌های رنگرزی پشم پیدا می‌شود. فقط در نمای «فرش» دیده می‌شود تا ظاهر فرش واقعی را ببینید.'},
- {chap:'۶، نما',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
- {chap:'۶، نما',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
- {chap:'۶، نما',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
- {chap:'۷، خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'اندازهٔ کاغذ و اندازهٔ هر خانه را انتخاب کنید. نقشه به چند برگه تقسیم می‌شود و شمار برگه‌ها زیر همین بخش نوشته می‌شود. برای فرش‌های قرینه می‌توانید فقط نیمه یا یک‌چهارم نقشه را چاپ کنید.'},
- {chap:'۷، خروجی',tab:'export',sel:'#rtl',up:'.check',title:'جهت شماره‌گذاری',text:'اگر بافنده از راست به چپ گره می‌زند این گزینه را روشن نگه دارید؛ شمارهٔ گره‌ها، برگه‌ها و رج‌خوان همه از راست شروع می‌شوند. «نماد در خانه‌ها» برای چاپ سیاه‌وسفید لازم است.'},
- {chap:'۷، خروجی',tab:'export',sel:'#expPdf',title:'ساخت PDF',text:'این دکمه فایل PDF می‌سازد: یک برگهٔ راهنما با رنگ‌ها، شمار گره و پشم هر رنگ و نقشهٔ برگه‌ها، و پس از آن برگه‌های نقشه با شمارهٔ رج و گره. فایل را ذخیره و چاپ کنید.'},
- {chap:'۷، خروجی',tab:'export',sel:'#expPng',up:'.group',title:'فایل‌های دیگر',text:'تصویر کامل نقشه، پیش‌نمایش فرش برای سفارش‌دهنده، تعلیم رج‌به‌رج به صورت متن، فهرست رنگ و پشم و دادهٔ خام نقشه را هم می‌توانید جداگانه ذخیره کنید.'},
- {chap:'۷، خروجی',tab:'export',sel:'#saveProj',up:'.group',title:'پشتیبان به‌صورت فایل',text:'پروژه را به‌صورت یک فایل ذخیره کنید تا روی رایانهٔ دیگر بازش کنید یا نسخهٔ پشتیبان داشته باشید. همهٔ تنظیمات، از برش و رنگ‌ها تا تنظیمات خروجی، در آن هست.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#projGroup',title:'پروژه‌های من',text:'هر تغییری که می‌دهید خودکار در همین مرورگر ذخیره می‌شود؛ اگر صفحه را ببندید، دفعهٔ بعد کار از همان‌جا ادامه پیدا می‌کند. برای نگه داشتن چند طرح، نامی بنویسید و «ذخیره» را بزنید. «نسخهٔ جدید» یک نسخهٔ جدا می‌سازد. فهرست پایین همهٔ پروژه‌ها را با تصویر کوچک نشان می‌دهد.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#drop',title:'بارگذاری تصویر',text:'روی این کادر بزنید و تصویر خود را انتخاب کنید. می‌توانید فایل را روی آن بکشید و رها کنید، یا تصویری را که کپی کرده‌اید با Ctrl+V جای‌گذاری (Paste) کنید. قالب‌های JPG، PNG و WebP پذیرفته می‌شوند.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#galleryGroup',title:'کتابخانهٔ طرح‌های نمونه',text:'به‌جای تصویر خودتان می‌توانید یکی از ۱۶ طرح سنتی را بار کنید: لچک‌ترنج کاشان و تبریز، شاه‌عباسی اصفهان، هراتی بیجار، بته‌جقهٔ سرابند، گل ترکمن، محرابی بلوچ، گبه و دیگران. با دکمه‌های «منطقه» و «نوع طرح» فهرست را فیلتر کنید. هر طرح، ابعاد، رج، پالت، قرینه و حاشیهٔ مناسب خودش را تنظیم می‌کند.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#museumGroup',title:'فرش‌های موزه‌ای (Open Access)',text:'از مجموعه‌های آزاد موزهٔ متروپولیتن و موزهٔ کلیولند، عکس فرش‌های تاریخی را جستجو و بار کنید. همهٔ این تصویرها با مجوز CC0 آزادند. ابعاد واقعی فرش هم خودکار تنظیم می‌شود و فیلترهای مناسب عکس روشن می‌شوند. فقط کادر برش را روی لبه‌های فرش بگذارید.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#rotR',up:'.row',title:'چرخش و آینه',text:'با دکمه‌های ۹۰ درجه تصویر را بچرخانید و با «آینه» آن را افقی یا عمودی برگردانید. طول فرش همیشه در راستای عمودی نقشه است.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#fine',up:'.field',title:'صاف کردن (Straighten)',text:'اگر عکس کمی کج گرفته شده (مثلاً عکس یک فرش قدیمی)، با این لغزنده زاویه را تا ۴۵ درجه دقیق تنظیم کنید.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#wrap',view:'source',title:'کادر برش (Crop)',text:'کادر سفید را روی تصویر جابه‌جا کنید و با مربع‌های گوشه اندازه‌اش را تغییر دهید. بیرون کادر بکشید تا کادر تازه بسازید. پس از رها کردن، نقشه دوباره ساخته می‌شود.'},
+ {chap:'۱ — تصویر',tab:'image',sel:'#cropLock',up:'.group',title:'قفل تناسب',text:'وقتی قفل روشن است، کادر برش همیشه هم‌تناسب با طول و عرض فرش می‌ماند تا تصویر کشیده نشود. «کل تصویر» قفل را برمی‌دارد و همهٔ تصویر را می‌گیرد.'},
+ {chap:'۲ — اندازه و رج',tab:'size',sel:'#sizeChips',title:'اندازه‌های رایج',text:'یکی از اندازه‌های سنتی را بزنید: پشتی، زرع‌ونیم، دوزرع، قالیچه، ۶ متری، ۱۲ متری یا کناره.'},
+ {chap:'۲ — اندازه و رج',tab:'size',sel:'#widthCm',up:'.group',title:'طول و عرض دلخواه',text:'ابعاد را به سانتی‌متر وارد کنید. دکمهٔ «جابه‌جایی» برای فرش‌های افقی است.'},
+ {chap:'۲ — اندازه و رج',tab:'size',sel:'#raj',up:'.field2',title:'رج (Raj)',text:'رج یعنی شمار گره‌ها در یک «گره» (حدود ۷ سانتی‌متر) از عرض فرش. رج بالاتر یعنی فرش ریزبافت‌تر، جزئیات بیشتر و زمان بافت طولانی‌تر. ۲۵ تا ۳۰ برای عشایری، ۳۵ تا ۵۰ برای تبریز و کاشان، ۶۰ به بالا برای نائین و قم.'},
+ {chap:'۲ — اندازه و رج',tab:'size',sel:'#gereh',up:'.field2',title:'طول گره (Gereh)',text:'در تبریز رج را در ۷ سانتی‌متر می‌شمارند و در کاشان و اصفهان معمولاً در ۶٫۵ سانتی‌متر. همان واحدی را انتخاب کنید که بافندهٔ شما به کار می‌برد.'},
+ {chap:'۲ — اندازه و رج',tab:'size',sel:'#rowRatio',up:'.field',title:'تراکم پود به تار',text:'عدد ۱ یعنی گره‌ها مربعی‌اند. اگر بافنده رج‌ها را در طول فشرده‌تر می‌کوبد، عدد را بیشتر کنید تا شمار رج‌ها درست حساب شود و خانه‌های نقشه کوتاه‌تر شوند.'},
+ {chap:'۲ — اندازه و رج',tab:'size',sel:'#specs',title:'مشخصات فنی',text:'اینجا شمار گره در عرض و رج در طول، کل گره‌ها، گره در دسی‌مترمربع، گره در اینچ مربع (KPSI) و اندازهٔ هر گره را می‌بینید.'},
+ {chap:'۲ — اندازه و رج',tab:'size',sel:'#estimate',up:'.group',title:'برآورد زمان، پشم و هزینه',text:'سرعت هر بافنده و شمار بافنده‌ها را وارد کنید تا زمان تقریبی بافت به روز و ماه حساب شود. وزن پشم پرز در هر مترمربع، کل پشم لازم را تعیین می‌کند. اگر دستمزد هر ۱۰۰۰ گره و قیمت پشم را بنویسید، هزینهٔ کل فرش هم برآورد می‌شود.'},
+ {chap:'۳ — رنگ‌ها',tab:'colors',sel:'#presets',title:'پالت‌های سنتی',text:'پالت یک منطقه را انتخاب کنید: کاشان، تبریز، اصفهان، نائین، کرمان، هریس، قشقایی، بلوچ، قم یا بیجار. همهٔ رنگ‌ها از رنگ‌های رایج رنگرزی فرش ایرانی گرفته شده‌اند.'},
+ {chap:'۳ — رنگ‌ها',tab:'colors',sel:'#method',title:'روش انتخاب رنگ',text:'«همهٔ پالت» همهٔ رنگ‌های پالت را به کار می‌برد. «بهترین‌ها از پالت» شبیه‌ترین رنگ‌ها به تصویر را از همان پالت برمی‌دارد. «از کل رنگ‌ها» از میان ۳۲ رنگ سنتی انتخاب می‌کند. «رنگ دقیق تصویر» رنگ‌ها را مستقیم از عکس استخراج می‌کند.'},
+ {chap:'۳ — رنگ‌ها',tab:'colors',sel:'#applyPal',up:'.group',title:'شمار رنگ‌ها و ساخت پالت',text:'شمار رنگ‌ها را تعیین کنید و «ساخت پالت» را بزنید. فرش‌های عشایری معمولاً ۶ تا ۸ رنگ دارند و فرش‌های شهری ریزبافت ۱۲ تا ۲۰ رنگ یا بیشتر. هر رنگ یعنی یک کلاف جدا برای بافنده.'},
+ {chap:'۳ — رنگ‌ها',tab:'colors',sel:'#dither',up:'.group',title:'نگاشت رنگ و پخش خطا',text:'«فاصلهٔ رنگی» تعیین می‌کند هر نقطهٔ تصویر به کدام رنگ پالت نزدیک‌تر است؛ حالت ادراکی (CIELAB) به چشم انسان نزدیک‌تر است. «پخش خطا» (Dithering) سایه‌ها را با نقطه‌های درهم می‌سازد؛ برای فرش معمولاً خاموش بهتر است.'},
+ {chap:'۳ — رنگ‌ها',tab:'colors',sel:'#pal',title:'پالت فعلی',text:'هر ردیف یک رنگ است با کد حرفی، نماد چاپی و درصد کاربرد. نام را ویرایش کنید، با مربع رنگی رنگ را عوض کنید یا با × حذفش کنید. رنگ‌های زیر نیم درصد را می‌توانید یکجا حذف کنید.'},
+ {chap:'۳ — رنگ‌ها',tab:'colors',sel:'#analysisGroup',title:'تحلیل گره‌ها',text:'این بخش نشان می‌دهد نقشه چقدر بافتنی است: میانگین تعویض رنگ در هر رج، طول رشته‌های هم‌رنگ، شمار گره‌های تک و میزان قرینگی. سختی بافت از روی همین‌ها تعیین می‌شود. اگر دو رنگ پالت در پشم تقریباً یکسان دیده شوند، با دکمهٔ «ادغام» یکی‌شان کنید.'},
+ {chap:'۴ — پردازش',tab:'filters',sel:'[data-fp="photo"]',up:'.group',title:'تنظیمات آماده',text:'برای شروع سریع یکی را بزنید: «عکس» برای عکس‌های واقعی، «لوگو و طرح تخت» برای طرح‌های ساده، «نقاشی و مینیاتور» برای آثار هنری.'},
+ {chap:'۴ — پردازش',tab:'filters',sel:'[data-bind="adj.bright"]',up:'.group',title:'رنگ و نور',text:'روشنایی، کنتراست، اشباع رنگ و گاما (Gamma) پیش از رنگ‌گذاری روی تصویر اعمال می‌شوند. افزایش کنتراست و اشباع کمک می‌کند رنگ‌ها جداتر و نقش‌ها خواناتر شوند.'},
+ {chap:'۴ — پردازش',tab:'filters',sel:'[data-bind="adj.kuwahara"]',up:'.group',title:'ساده‌سازی',text:'«حذف نویز» (Median) دانه‌ها و لکه‌های ریز را پاک می‌کند. «نقاشی‌گون» (Kuwahara) سطح‌های یکدست می‌سازد و لبه‌ها را نگه می‌دارد؛ مؤثرترین ابزار برای تبدیل عکس به نقشه است. «نرم‌کردن» و «تیزکردن» جزئیات را کم یا زیاد می‌کنند.'},
+ {chap:'۴ — پردازش',tab:'filters',sel:'[data-bind="clean.despeckle"]',up:'.group',title:'پاک‌سازی پس از رنگ‌گذاری',text:'«حذف گره‌های تک» (Despeckle) گره‌هایی را که تنها و بی‌همسایهٔ هم‌رنگ‌اند برمی‌دارد، چون بافتنشان سخت است و در فرش دیده نمی‌شوند. «خط دور» (Outline) دور نقش‌ها یک ردیف گرهٔ تیره می‌گذارد، مثل قلم‌گیری در نقشه‌های ایرانی.'},
+ {chap:'۵ — طرح',tab:'pattern',sel:'#sym',title:'قرینه‌سازی (Symmetry)',text:'«لچکی» یک‌چهارم بالای تصویر را در چهار جهت قرینه می‌کند، مانند فرش‌های لچک‌ترنج. «نیمه» فقط چپ و راست یا بالا و پایین را قرینه می‌کند.'},
+ {chap:'۵ — طرح',tab:'pattern',sel:'#repeatGroup',title:'تکرار نقش (Repeat)',text:'برای طرح‌های افشان و خشتی، بخشی از تصویر را برش بزنید و تعیین کنید چند بار در عرض و طول تکرار شود. با «قرینه کردن خانه‌های یک‌درمیان» درزهای بین تکرارها پنهان می‌شود.'},
+ {chap:'۵ — طرح',tab:'pattern',sel:'[data-bind="border.on"]',up:'.group',title:'حاشیه (Border)',text:'یک حاشیه با دو باریکه (Guard) بیرونی و درونی و یک حاشیهٔ اصلی دور فرش بگذارید. پهنا را به گره تعیین کنید، نقش (دندانه‌ای، کنگره‌ای، شطرنجی، اریب یا گل‌های پی‌درپی) و سه رنگ آن را انتخاب کنید.'},
+ {chap:'۵ — طرح',tab:'pattern',sel:'[data-bind="abrash"]',up:'.group',title:'ابرش (Abrash)',text:'ابرش تغییر ملایم رنگ در رج‌هاست که از تفاوت دسته‌های رنگرزی پشم پیدا می‌شود. فقط در نمای «فرش» دیده می‌شود تا ظاهر فرش واقعی را ببینید.'},
+ {chap:'۶ — نما',sel:'#viewSeg',view:'map',title:'سه نما',text:'«نقشه» شبکهٔ گره‌ها را با خطوط ده‌تایی و شمارهٔ رج‌ها نشان می‌دهد. «فرش» پیش‌نمایش واقعی با بافت گره و ریشه است. «تصویر و برش» تصویر اصلی و کادر برش را نشان می‌دهد.'},
+ {chap:'۶ — نما',sel:'#wrap',view:'map',title:'جابه‌جایی و بزرگ‌نمایی',text:'با چرخ موس یا دو انگشت بزرگ‌نمایی کنید و با کشیدن، نقشه را جابه‌جا کنید. شمارهٔ رج‌ها در کنار و شمارهٔ گره‌ها در بالا آمده است؛ خط‌چین قرمز محور میانی فرش است.'},
+ {chap:'۶ — نما',sel:'#rowToggle',title:'رج‌خوان',text:'رج‌خوان هر رج را جدا نشان می‌دهد و می‌گوید از هر رنگ چند گره پشت سر هم بیاید، مانند «تعلیم» که برای بافنده خوانده می‌شود. با دکمه‌های بالا و پایین رج را عوض کنید یا آن را با صدا بخوانید.'},
+ {chap:'۷ — خروجی',tab:'export',sel:'#paper',up:'.group',title:'نقشهٔ چاپی برای بافنده',text:'اندازهٔ کاغذ و اندازهٔ هر خانه را انتخاب کنید. نقشه به چند برگه تقسیم می‌شود و شمار برگه‌ها زیر همین بخش نوشته می‌شود. برای فرش‌های قرینه می‌توانید فقط نیمه یا یک‌چهارم نقشه را چاپ کنید.'},
+ {chap:'۷ — خروجی',tab:'export',sel:'#rtl',up:'.check',title:'جهت شماره‌گذاری',text:'اگر بافنده از راست به چپ گره می‌زند این گزینه را روشن نگه دارید؛ شمارهٔ گره‌ها، برگه‌ها و رج‌خوان همه از راست شروع می‌شوند. «نماد در خانه‌ها» برای چاپ سیاه‌وسفید لازم است.'},
+ {chap:'۷ — خروجی',tab:'export',sel:'#expPdf',title:'ساخت PDF',text:'این دکمه فایل PDF می‌سازد: یک برگهٔ راهنما با رنگ‌ها، شمار گره و پشم هر رنگ و نقشهٔ برگه‌ها، و پس از آن برگه‌های نقشه با شمارهٔ رج و گره. فایل را ذخیره و چاپ کنید.'},
+ {chap:'۷ — خروجی',tab:'export',sel:'#expPng',up:'.group',title:'فایل‌های دیگر',text:'تصویر کامل نقشه، پیش‌نمایش فرش برای سفارش‌دهنده، تعلیم رج‌به‌رج به صورت متن، فهرست رنگ و پشم و دادهٔ خام نقشه را هم می‌توانید جداگانه ذخیره کنید.'},
+ {chap:'۷ — خروجی',tab:'export',sel:'#saveProj',up:'.group',title:'پشتیبان به‌صورت فایل',text:'پروژه را به‌صورت یک فایل ذخیره کنید تا روی رایانهٔ دیگر بازش کنید یا نسخهٔ پشتیبان داشته باشید. همهٔ تنظیمات، از برش و رنگ‌ها تا تنظیمات خروجی، در آن هست.'},
  {chap:'پایان',title:'آماده‌اید!',text:'حالا تصویر خودتان را بارگذاری کنید. کارتان خودکار ذخیره می‌شود. هر وقت خواستید، این راهنما را با دکمهٔ «راهنمای گام‌به‌گام» در بالای صفحه دوباره ببینید.'}
 ];
 let tourI=-1;
